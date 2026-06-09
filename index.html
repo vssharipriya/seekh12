@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrendIdea — Turn Trends Into Campaigns</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     LANDING PAGE
+═══════════════════════════════════════════ -->
+<div class="page active" id="page-landing">
+  <div class="landing-bg">
+    <div class="bg-circle bg-circle-1"></div>
+    <div class="bg-circle bg-circle-2"></div>
+    <div class="bg-circle bg-circle-3"></div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-logo">Trend<span>Idea</span></div>
+    <div class="nav-links">
+      <a class="nav-link" href="explore.html">Features</a>
+      <a class="nav-link" onclick="UI.scrollTo('how-section')">How It Works</a>
+    </div>
+    <button class="nav-cta" onclick="App.openApp()">Launch App →</button>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-eyebrow">✦ AI-Powered Trend Intelligence</div>
+    <h1 class="hero-title">Turn Trends Into Campaigns<br><em>Before They Peak.</em></h1>
+    <p class="hero-sub">Discover trending content ideas, analyze brand fit, and generate ready-to-post social media campaigns — powered by Groq AI.</p>
+    <div class="hero-btns">
+      <button class="btn-hero-primary" onclick="App.openApp()">Start for Free →</button>
+      <button class="btn-hero-secondary" onclick="window.location.href='explore.html'">Explore Features</button>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-item"><div class="stat-num">12+</div><div class="stat-label">Trend Signals</div></div>
+      <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">Industries</div></div>
+      <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">Platforms</div></div>
+      <div class="stat-item"><div class="stat-num">AI</div><div class="stat-label">Groq Powered</div></div>
+    </div>
+  </section>
+
+  <section class="features-section" id="features-section">
+    <div class="section-header">
+      <div class="section-eyebrow">✦ Platform Features</div>
+      <h2 class="section-title">Everything you need to stay<br>ahead of the trend curve</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Brand Intelligence</div>
+        <div class="feature-desc">Input your brand name, industry, and tone. Our engine matches you with the most relevant trends using a smart scoring algorithm.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <div class="feature-title">Trend Match Score</div>
+        <div class="feature-desc">Each trend gets a personalized fit percentage, stage indicator (Rising/Peak/Fading), risk level, and AI-generated insight.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✦</div>
+        <div class="feature-title">Campaign Studio</div>
+        <div class="feature-desc">Generate complete campaigns with hooks, captions, visual concepts, hashtags, and CTAs — tailored to your selected platform.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">Groq AI Engine</div>
+        <div class="feature-desc">Ultra-fast Llama 3.3 model for real-time, context-aware campaign generation that sounds exactly like your brand voice.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Live Post Preview</div>
+        <div class="feature-desc">See your generated content inside a realistic social media post preview before you publish anywhere.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚠️</div>
+        <div class="feature-title">Risk Detection</div>
+        <div class="feature-desc">Automatically flags trends with audience mismatch, tone conflict, or poor conversion potential for your brand profile.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-section" id="how-section">
+    <div class="how-inner">
+      <div class="section-header">
+        <div class="section-eyebrow">✦ How It Works</div>
+        <h2 class="section-title">From brand input to viral campaign<br>in four simple steps</h2>
+      </div>
+      <div class="steps-row">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-title">Describe Your Brand</div>
+          <div class="step-desc">Enter brand name, industry, tone, and target platform.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-title">Discover Trends</div>
+          <div class="step-desc">Browse matched trends ranked by relevance, risk level, and stage.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-title">Generate Campaign</div>
+          <div class="step-desc">Pick a content type and let Groq AI craft a full brand-aware campaign instantly.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-title">Preview & Post</div>
+          <div class="step-desc">Review your content in the live social post preview, then copy and publish.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-banner">
+    <div class="cta-inner">
+      <div class="section-eyebrow">✦ Ready to Trend?</div>
+      <h2 class="section-title">Stop guessing.<br>Start campaigning.</h2>
+      <p>TrendIdea helps creators, brands, and agencies discover viral trends and turn them into engaging content — instantly, with real AI.</p>
+      <button class="btn-hero-primary" onclick="App.openApp()">Launch TrendIdea →</button>
+    </div>
+  </section>
+
+  <footer>
+    Built with ✦ by <span>TrendIdea</span> · Powered by Groq AI · No backend required
+  </footer>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     APP PAGE
+═══════════════════════════════════════════ -->
+<div class="page" id="page-app">
+  <nav class="app-nav">
+    <div class="app-nav-logo" onclick="App.goHome()">Trend<span>Idea</span></div>
+    <div class="app-tabs">
+      <button class="app-tab active" data-tab="brand" onclick="UI.switchTab('brand', this)">
+        <span class="tab-icon">⚙</span> Brand
+      </button>
+      <button class="app-tab" data-tab="trends" onclick="UI.switchTab('trends', this)">
+        <span class="tab-icon">📈</span> Trends
+      </button>
+      <button class="app-tab" data-tab="studio" onclick="UI.switchTab('studio', this)">
+        <span class="tab-icon">✦</span> Studio
+      </button>
+    </div>
+  </nav>
+
+  <div class="app-container">
+
+    <!-- ── BRAND TAB ── -->
+    <div class="app-section active" id="tab-brand">
+      <div class="app-section-header">
+        <h2>Brand Analysis</h2>
+        <p>Tell us about your brand to discover the most relevant trends.</p>
+      </div>
+
+      <div class="brand-form">
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">Brand Name</label>
+            <input type="text" class="form-input" id="brand-name" placeholder="e.g. Luna Studio" value="Luna Studio" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Industry</label>
+            <select class="form-select" id="brand-industry">
+              <option value="Fashion">Fashion</option>
+              <option value="Beauty">Beauty</option>
+              <option value="Tech & SaaS">Tech & SaaS</option>
+              <option value="Food & Lifestyle">Food & Lifestyle</option>
+              <option value="Fitness & Wellness">Fitness & Wellness</option>
+              <option value="Finance">Finance</option>
+              <option value="Travel">Travel</option>
+              <option value="Education">Education</option>
+              <option value="Gaming">Gaming</option>
+              <option value="E-commerce">E-commerce</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Real Estate">Real Estate</option>
+              <option value="Automobile">Automobile</option>
+              <option value="Sports">Sports</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Restaurants">Restaurants</option>
+              <option value="Digital Marketing">Digital Marketing</option>
+              <option value="Movies & OTT">Movies & OTT</option>
+              <option value="Photography">Photography</option>
+              <option value="Home Decor">Home Decor</option>
+              <option value="Entrepreneurship">Entrepreneurship</option>
+              <option value="Influencer Marketing">Influencer Marketing</option>
+              <option value="Salon & Spa">Salon & Spa</option>
+              <option value="YouTube Creators">YouTube Creators</option>
+              <option value="Personal Branding">Personal Branding</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">Brand Tone</label>
+            <select class="form-select" id="brand-tone">
+              <option value="Premium & Minimal">Premium & Minimal</option>
+              <option value="Bold & Energetic">Bold & Energetic</option>
+              <option value="Warm & Friendly">Warm & Friendly</option>
+              <option value="Edgy & Creative">Edgy & Creative</option>
+              <option value="Professional & Clean">Professional & Clean</option>
+              <option value="Playful & Fun">Playful & Fun</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Primary Platform</label>
+            <select class="form-select" id="brand-platform">
+              <option value="Instagram">Instagram</option>
+              <option value="YouTube">YouTube</option>
+              <option value="TikTok">TikTok</option>
+              <option value="X (Twitter)">X (Twitter)</option>
+              <option value="Facebook">Facebook</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid cols-1">
+          <div class="form-field">
+            <label class="form-label">Target Audience</label>
+            <input type="text" class="form-input" id="brand-audience" placeholder="e.g. Women 22–35, design-conscious professionals" value="Style-conscious women 22–35" />
+          </div>
+        </div>
+        <button class="btn-primary" id="analyze-btn" onclick="App.analyzeBrand()">
+          Analyze Brand & Discover Trends →
+        </button>
+      </div>
+    </div>
+
+    <!-- ── TRENDS TAB ── -->
+    <div class="app-section" id="tab-trends">
+      <div class="app-section-header">
+        <h2>Trend Intelligence</h2>
+        <p id="trends-sub">Personalized trends matched to your brand.</p>
+      </div>
+      <div id="brand-summary-bar" class="brand-summary" style="display:none"></div>
+      <div class="trends-toolbar">
+        <div class="trends-count" id="trends-count"></div>
+        <div class="filter-chips">
+          <button class="filter-chip active" onclick="App.filterTrends('all', this)">All</button>
+          <button class="filter-chip" onclick="App.filterTrends('Rising', this)">Rising 🔥</button>
+          <button class="filter-chip" onclick="App.filterTrends('Peak', this)">Peak</button>
+          <button class="filter-chip" onclick="App.filterTrends('Low', this)">Low Risk</button>
+        </div>
+      </div>
+      <div id="trends-grid" class="trends-grid"></div>
+      <div id="risk-section" class="risk-section" style="display:none">
+        <div class="risk-header">⚠️ Low-Synergy Trends — Avoid for Your Brand</div>
+        <div id="risk-cards"></div>
+      </div>
+    </div>
+
+    <!-- ── STUDIO TAB ── -->
+    <div class="app-section" id="tab-studio">
+      <div class="app-section-header">
+        <h2>Campaign Studio</h2>
+        <p>Generate ready-to-post campaigns using built-in local templates.</p>
+      </div>
+      <div class="studio-controls">
+        <div class="selected-trend-row">
+          <span class="selected-label">Trend</span>
+          <span class="selected-value" id="studio-trend-display">No trend selected</span>
+          <button class="change-trend-btn" onclick="UI.switchTab('trends', document.querySelector('[data-tab=trends]'))">Change →</button>
+        </div>
+        <div class="form-grid cols-3">
+          <div class="form-field">
+            <label class="form-label">Content Type</label>
+            <select class="form-select" id="content-type">
+              <option value="Viral Hook">Viral Hook</option>
+              <option value="Caption">Caption</option>
+              <option value="Conversion Ad">Conversion Ad</option>
+              <option value="Trend Reel Script">Trend Reel Script</option>
+              <option value="Promotional Post">Promotional Post</option>
+              <option value="Meme Concept">Meme Concept</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Platform</label>
+            <select class="form-select" id="studio-platform">
+              <option value="Instagram">Instagram</option>
+              <option value="TikTok">TikTok</option>
+              <option value="X (Twitter)">X (Twitter)</option>
+              <option value="YouTube">YouTube</option>
+              <option value="Facebook">Facebook</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Tone Override</label>
+            <select class="form-select" id="tone-override">
+              <option value="auto">Auto (Brand Tone)</option>
+              <option value="Casual">Casual</option>
+              <option value="Witty">Witty</option>
+              <option value="Inspiring">Inspiring</option>
+              <option value="Urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" id="gen-btn" onclick="App.generateCampaign()">✦ Generate Campaign</button>
+      </div>
+      <div id="output-area"></div>
+    </div>
+
+  </div><!-- /app-container -->
+</div><!-- /page-app -->
+
+
+<!-- SCRIPTS — load order matters -->
+<script src="trends.js"></script>
+<script src="engine.js"></script>
+<script src="ui.js"></script>
+<script src="groq.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
