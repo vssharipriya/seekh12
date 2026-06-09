@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Features - Trend Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --cream: #fdf8f2;
+            --warm-white: #faf4ec;
+            --light-tan: #f0e8de;
+            --tan: #e8ddd0;
+            --accent-light: #e8c9a8;
+            --accent: #c4956a;
+            --gold: #d4a853;
+            --brown: #9b7355;
+            --mid-brown: #7a5c44;
+            --dark-brown: #5c3d2e;
+            --deep-brown: #3a2417;
+            --text-dark: #3a2a1e;
+            --text-mid: #7a5c44;
+            --text-light: #b89880;
+            --text-faint: #d4c0b0;
+            --card-border: rgba(196,149,106,0.22);
+            --card-hover: rgba(196,149,106,0.45);
+            --shadow-sm: 0 2px 12px rgba(92,61,46,0.08);
+            --shadow-md: 0 8px 28px rgba(92,61,46,0.13);
+            --shadow-lg: 0 18px 52px rgba(92,61,46,0.18);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top left, rgba(212,168,83,0.16), transparent 24%),
+                        radial-gradient(circle at bottom right, rgba(196,149,106,0.16), transparent 26%),
+                        linear-gradient(180deg, #fdf8f2 0%, #faf4ec 55%, #f0e8de 100%);
+            color: var(--text-dark);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+            padding: 2rem 1rem 3rem;
+        }
+
+        header h1,
+        .logo {
+            font-family: 'Playfair Display', serif;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            opacity: 0.35;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+            padding: 1rem 1.25rem;
+            border-radius: 999px;
+            background: rgba(253,248,242,0.95);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 1rem;
+            backdrop-filter: blur(18px);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--deep-brown);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.2rem;
+            border-radius: 999px;
+            background: rgba(232,201,168,0.18);
+            color: var(--dark-brown);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(196,149,106,0.28);
+            transform: translateY(-1px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding: 2.5rem 1.25rem;
+            border-radius: 32px;
+            background: linear-gradient(135deg, rgba(248,232,216,0.95), rgba(255,250,244,0.98));
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-md);
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 4vw, 3.8rem);
+            color: var(--deep-brown);
+            line-height: 1.05;
+            margin-bottom: 1rem;
+        }
+
+        header p {
+            color: var(--text-mid);
+            font-size: 1.05rem;
+            max-width: 720px;
+            margin: 0 auto;
+            line-height: 1.75;
+        }
+
+        .feature-row {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature-block {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.75rem;
+            background: var(--warm-white);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .feature-block:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--card-hover);
+        }
+
+        @media (min-width: 768px) {
+            .feature-block {
+                grid-template-columns: 1fr 1fr;
+            }
+            .feature-block.reverse {
+                direction: rtl;
+            }
+            .feature-block.reverse .feature-info {
+                direction: ltr;
+            }
+        }
+
+        .feature-info h2 {
+            font-size: 1.85rem;
+            margin-bottom: 1rem;
+            color: var(--deep-brown);
+        }
+
+        .feature-info p {
+            color: var(--text-mid);
+            margin-bottom: 1.5rem;
+            line-height: 1.9;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.45rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: rgba(196,149,106,0.16);
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .badge.cyan {
+            background: rgba(211,168,83,0.16);
+            color: var(--gold);
+        }
+
+        .feature-image-container {
+            width: 100%;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(196,149,106,0.16);
+            box-shadow: 0 14px 40px rgba(92,61,46,0.12);
+        }
+
+        .feature-image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            filter: saturate(1.05) hue-rotate(-10deg) brightness(0.98);
+        }
+
+        .back-nav {
+            margin-bottom: 1.5rem;
+        }
+
+        .back-link {
+            color: var(--deep-brown);
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 999px;
+            background: rgba(253,248,242,0.95);
+            border: 1px solid var(--card-border);
+            transition: background 0.25s ease, transform 0.25s ease;
+        }
+
+        .back-link:hover {
+            background: var(--light-tan);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <nav class="top-nav">
+        <a href="index.html" class="logo">TrendIdea</a>
+        <div class="nav-actions">
+            <a class="nav-link" href="index.html">Back to Dashboard</a>
+            <a class="nav-link" href="index.html">Launch App</a>
+        </div>
+    </nav>
+
+    <div class="back-nav">
+        <a href="index.html" class="back-link">← Back to Live Dashboard</a>
+    </div>
+
+    <header>
+        <h1>Platform Capabilities</h1>
+        <p>Unpack the data ingestion pipeline, social signals engine, and multi-channel asset generation architecture behind our real-time trend ecosystem.</p>
+    </header>
+
+    <div class="feature-row">
+        <!-- Feature 1 -->
+        <section class="feature-block">
+            <div class="feature-info">
+                <span class="badge">Real-Time Processing</span>
+                <h2>Predictive Trend Analytics</h2>
+                <p>Track metrics using predictive modeling kernels. The system parses structural spikes across cross-sectional market data feeds to catch market momentum shifting hours before it hits mainstream aggregators.</p>
+            </div>
+            <div class="feature-image-container">
+                <img src="https://cdn-images-1.medium.com/max/1600/0*7ZEt9p7-0rKVgeRX.jpg" alt="Dark theme platform interface showing analytics, revenue metrics, and user transaction breakdown curves.">
+            </div>
+        </section>
+
+        <!-- Feature 2 -->
+        <section class="feature-block reverse">
+            <div class="feature-info">
+                <span class="badge cyan">Social Ingestion</span>
+                <h2>Multi-Channel Social Feeds</h2>
+                <p>Isolate velocity vectors directly from targeted platform APIs. Our ingestion loops filter localized noise, parsing user sentiment, velocity, and engagement variations to surface true core demand layers.</p>
+            </div>
+            <div class="feature-image-container">
+                <img src="https://cdn.freepixel.com/thumb/free-photos-abstract-blue-neon-light-bar-graph-background-for-future-of-finance-stock-market-and-business-trade-th-1004190362.jpg" alt="Glowing neon bar charts tracking digital trading volume metrics across matrixed data grids.">
+            </div>
+        </section>
+
+        <!-- Feature 3 -->
+        <section class="feature-block">
+            <div class="feature-info">
+                <span class="badge">Asset Framework</span>
+                <h2>Automated Campaign Mapping</h2>
+                <p>Convert real-time telemetry markers directly into clean multi-channel campaign architectures. Test visual variants, copy variables, and creative asset blueprints mapped to the dynamic requirements of changing trends.</p>
+            </div>
+            <div class="feature-image-container">
+                <img src="https://png.pngtree.com/thumb_back/fw800/background/20251015/pngtree-comprehensive-brand-identity-mockup-set-featuring-clothing-business-cards-packaging-and-image_19880531.webp" alt="Clean brand layout flat lay showcasing multiple asset variants, mobile design layouts, and physical asset compositions.">
+            </div>
+        </section>
+    </div>
+</div>
+
+</body>
+</html>
