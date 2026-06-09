@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MarkTrend — Gateway</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --lavender:       #b8a9f5;
+      --lavender-dim:   rgba(184,169,245,0.18);
+      --lavender-pill:  rgba(184,169,245,0.82);
+      --gold:           #e8c97a;
+      --white:          #ffffff;
+      --muted:          rgba(255,255,255,0.45);
+      --glass-bg:       rgba(26,24,21,0.45);
+      --glass-border:   rgba(255,255,255,0.10);
+      --input-bg:       rgba(255,255,255,0.07);
+      --input-border:   rgba(255,255,255,0.13);
+      --input-focus:    rgba(184,169,245,0.55);
+      --placeholder:    rgba(255,255,255,0.35);
+      --btn-gradient:   linear-gradient(135deg,#b8a9f5 0%,#8b77e8 100%);
+      --font-display:   'Sora', sans-serif;
+      --font-body:      'Inter', sans-serif;
+      --radius-panel:   14px;
+      --radius-input:   10px;
+      --radius-btn:     10px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── FULL-VIEWPORT BACKGROUND ─── */
+    body {
+      background-image: url('background.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Subtle dark veil over the landscape */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(8,6,18,0.62) 0%,
+        rgba(14,10,30,0.48) 50%,
+        rgba(6,10,20,0.70) 100%
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── TOP NAV BAR ─── */
+    header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 36px;
+    }
+
+    .brand {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--white);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .brand span.mark { color: var(--lavender); }
+    .brand span.trend { color: var(--gold); }
+
+    /* Pill tab switcher */
+    .tab-bar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--glass-border);
+      border-radius: 50px;
+      padding: 4px;
+      gap: 0;
+    }
+
+    .tab-bar .tab-pill {
+      position: absolute;
+      top: 4px;
+      height: calc(100% - 8px);
+      border-radius: 50px;
+      background: var(--lavender-pill);
+      backdrop-filter: blur(6px);
+      transition: left 0.38s cubic-bezier(0.4,0,0.2,1),
+                  width 0.38s cubic-bezier(0.4,0,0.2,1);
+      z-index: 0;
+      /* JS will set left + width */
+    }
+
+    .tab-bar button {
+      position: relative;
+      z-index: 1;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      padding: 7px 22px;
+      border-radius: 50px;
+      color: var(--muted);
+      transition: color 0.25s;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .tab-bar button.active { color: var(--white); font-weight: 600; }
+
+    /* ─── MAIN CONTENT CENTERING ─── */
+    main {
+      position: relative;
+      z-index: 5;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px 48px;
+    }
+
+    /* ─── GLASS PANEL ─── */
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px) saturate(1.3);
+      -webkit-backdrop-filter: blur(15px) saturate(1.3);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-panel);
+      width: 100%;
+      max-width: 400px;
+      padding: 36px 32px 32px;
+      box-shadow:
+        0 8px 48px rgba(0,0,0,0.38),
+        0 1.5px 0 rgba(255,255,255,0.06) inset;
+    }
+
+    /* ─── AVATAR ACCENT ─── */
+    .avatar-ring {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: var(--lavender-dim);
+      border: 2px solid rgba(184,169,245,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 0 0 6px rgba(184,169,245,0.09);
+    }
+    .avatar-ring svg { width: 28px; height: 28px; }
+
+    /* ─── FORM VIEWS (fade transition) ─── */
+    .form-view {
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      transition: opacity 0.32s ease;
+    }
+    .form-view.active {
+      opacity: 1;
+      pointer-events: auto;
+      position: relative;
+    }
+    .forms-wrapper { position: relative; }
+
+    /* ─── FIELD LABELS ─── */
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 7px;
+    }
+
+    /* ─── INPUT WRAPPERS ─── */
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: var(--radius-input);
+      padding: 0 14px;
+      gap: 10px;
+      transition: border-color 0.22s, box-shadow 0.22s;
+    }
+    .input-wrap:focus-within {
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 3px rgba(184,169,245,0.13);
+    }
+    .input-wrap svg {
+      flex-shrink: 0;
+      opacity: 0.45;
+      width: 16px; height: 16px;
+    }
+    .input-wrap input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      padding: 11px 0;
+    }
+    .input-wrap input::placeholder { color: var(--placeholder); }
+
+    /* ─── PRIMARY ACTION BUTTON ─── */
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 22px;
+      background: var(--btn-gradient);
+      border: none;
+      border-radius: var(--radius-btn);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.18s;
+      box-shadow: 0 4px 18px rgba(139,119,232,0.35);
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); opacity: 1; }
+
+    /* ─── SWITCH LINK ─── */
+    .switch-text {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .switch-text a {
+      color: var(--lavender);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .switch-text a:hover { color: #d3c9fa; text-decoration: underline; }
+
+    /* ─── STAR PARTICLES (ambient) ─── */
+    .stars {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+      animation: twinkle var(--dur, 3s) ease-in-out infinite;
+      opacity: 0;
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: 0; }
+      50%      { opacity: var(--peak, 0.7); }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 480px) {
+      header { padding: 18px 20px; }
+      .glass-panel { padding: 28px 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient star particles -->
+  <div class="stars" id="stars"></div>
+
+  <!-- ─── HEADER ─── -->
+  <header>
+    <a href="index.html" class="brand">
+      <span class="mark">Mark</span><span class="trend">Trend</span>
+    </a>
+
+    <div class="tab-bar" id="tabBar">
+      <div class="tab-pill" id="tabPill"></div>
+      <button id="btnLogin" onclick="switchTo('login')">Login</button>
+      <button id="btnSignup" onclick="switchTo('signup')" class="active">Sign Up</button>
+    </div>
+  </header>
+
+  <!-- ─── MAIN PANEL ─── -->
+  <main>
+    <div class="glass-panel">
+
+      <div class="forms-wrapper">
+
+        <!-- STATE A: SIGN UP (default active) -->
+        <div class="form-view active" id="viewSignup">
+          <div class="avatar-ring">
+            <!-- Person icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b8a9f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+
+          <!-- Username -->
+          <div class="field">
+            <label for="su-username">Username</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <input id="su-username" type="text" placeholder="Enter your username" autocomplete="username"/>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="field">
+            <label for="su-email">Email</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="m2 7 10 7 10-7"/>
+              </svg>
+              <input id="su-email" type="email" placeholder="Enter your email" autocomplete="email"/>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="field">
+            <label for="su-password">Password</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <input id="su-password" type="password" placeholder="Create a password" autocomplete="new-password"/>
+            </div>
+          </div>
+
+          <button class="btn-primary" onclick="goToDashboard()">Sign Up</button>
+
+          <p class="switch-text">
+            Already have an account? <a onclick="switchTo('login')">Log in</a>
+          </p>
+        </div>
+
+        <!-- STATE B: LOGIN -->
+        <div class="form-view" id="viewLogin">
+          <div class="avatar-ring">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b8a9f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+
+          <!-- Username -->
+          <div class="field">
+            <label for="li-username">Username</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <input id="li-username" type="text" placeholder="Enter your username" autocomplete="username"/>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="field">
+            <label for="li-password">Password</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <input id="li-password" type="password" placeholder="Enter your password" autocomplete="current-password"/>
+            </div>
+          </div>
+
+          <button class="btn-primary" onclick="goToDashboard()">Login</button>
+
+          <p class="switch-text">
+            Not registered yet? <a onclick="switchTo('signup')">Sign up</a>
+          </p>
+        </div>
+
+      </div><!-- /.forms-wrapper -->
+    </div><!-- /.glass-panel -->
+  </main>
+
+  <script>
+    /* ─── STAR PARTICLE GENERATOR ─── */
+    (function() {
+      const container = document.getElementById('stars');
+      for (let i = 0; i < 55; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const size = Math.random() * 2.2 + 0.6;
+        s.style.cssText = `
+          width:${size}px; height:${size}px;
+          left:${Math.random()*100}%;
+          top:${Math.random()*100}%;
+          --dur:${(Math.random()*4+2).toFixed(1)}s;
+          --peak:${(Math.random()*0.6+0.2).toFixed(2)};
+          animation-delay:${(Math.random()*5).toFixed(1)}s;
+        `;
+        container.appendChild(s);
+      }
+    })();
+
+    /* ─── TAB PILL POSITIONING ─── */
+    const tabBar   = document.getElementById('tabBar');
+    const pill     = document.getElementById('tabPill');
+    const btnLogin  = document.getElementById('btnLogin');
+    const btnSignup = document.getElementById('btnSignup');
+
+    function positionPill(btn) {
+      const barRect = tabBar.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      pill.style.left  = (btnRect.left - barRect.left) + 'px';
+      pill.style.width = btnRect.width + 'px';
+    }
+
+    /* ─── STATE SWITCH ─── */
+    let currentState = 'signup';
+
+    function switchTo(state) {
+      if (state === currentState) return;
+      currentState = state;
+
+      const viewSignup = document.getElementById('viewSignup');
+      const viewLogin  = document.getElementById('viewLogin');
+
+      if (state === 'login') {
+        viewSignup.classList.remove('active');
+        viewLogin.classList.add('active');
+        btnLogin.classList.add('active');
+        btnSignup.classList.remove('active');
+        positionPill(btnLogin);
+      } else {
+        viewLogin.classList.remove('active');
+        viewSignup.classList.add('active');
+        btnSignup.classList.add('active');
+        btnLogin.classList.remove('active');
+        positionPill(btnSignup);
+      }
+    }
+
+    /* ─── DASHBOARD REDIRECT ─── */
+    function goToDashboard() {
+      window.location.href = 'main.html';
+    }
+
+    /* ─── INIT PILL POSITION after layout ─── */
+    window.addEventListener('load', () => positionPill(btnSignup));
+    window.addEventListener('resize', () => {
+      positionPill(currentState === 'login' ? btnLogin : btnSignup);
+    });
+  </script>
+</body>
+</html>
