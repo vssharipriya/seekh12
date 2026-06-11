@@ -11,15 +11,18 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════
-     LANDING PAGE
-═══════════════════════════════════════════ -->
 <div class="page active" id="page-landing">
   <div class="landing-bg">
     <div class="bg-circle bg-circle-1"></div>
     <div class="bg-circle bg-circle-2"></div>
     <div class="bg-circle bg-circle-3"></div>
   </div>
+
+  <a href="profile.html" class="global-profile-nav" aria-label="Go to Profile Settings">
+    <div class="nav-avatar-circle">
+      <span class="nav-avatar-icon" aria-hidden="true">👤</span>
+    </div>
+  </a>
 
   <nav class="nav">
     <div class="nav-logo">Trend<span>Idea</span></div>
@@ -131,28 +134,19 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════════
-     APP PAGE
-═══════════════════════════════════════════ -->
 <div class="page" id="page-app">
   <nav class="app-nav">
     <div class="app-nav-logo" onclick="App.goHome()">Trend<span>Idea</span></div>
-    <div class="app-tabs">
-      <button class="app-tab active" data-tab="brand" onclick="UI.switchTab('brand', this)">
-        <span class="tab-icon">⚙</span> Brand
-      </button>
-      <button class="app-tab" data-tab="trends" onclick="UI.switchTab('trends', this)">
-        <span class="tab-icon">📈</span> Trends
-      </button>
-      <button class="app-tab" data-tab="studio" onclick="UI.switchTab('studio', this)">
-        <span class="tab-icon">✦</span> Studio
-      </button>
-    </div>
+
+    <a href="profile.html" class="global-profile-nav" aria-label="Go to Profile Settings" style="position: relative; top: unset; right: unset;">
+      <div class="nav-avatar-circle">
+        <span class="nav-avatar-icon" aria-hidden="true">👤</span>
+      </div>
+    </a>
   </nav>
 
   <div class="app-container">
 
-    <!-- ── BRAND TAB ── -->
     <div class="app-section active" id="tab-brand">
       <div class="app-section-header">
         <h2>Brand Analysis</h2>
@@ -231,7 +225,6 @@
       </div>
     </div>
 
-    <!-- ── TRENDS TAB ── -->
     <div class="app-section" id="tab-trends">
       <div class="app-section-header">
         <h2>Trend Intelligence</h2>
@@ -254,7 +247,6 @@
       </div>
     </div>
 
-    <!-- ── STUDIO TAB ── -->
     <div class="app-section" id="tab-studio">
       <div class="app-section-header">
         <h2>Campaign Studio</h2>
@@ -276,7 +268,8 @@
               <option value="Trend Reel Script">Trend Reel Script</option>
               <option value="Promotional Post">Promotional Post</option>
               <option value="Meme Concept">Meme Concept</option>
-              <option value="Suggested Audio / Song">Suggested Audio / Song</option>">Hashtag Set</option>
+              <option value="Suggested Audio / Song">Suggested Audio / Song</option>
+              <option value="Hashtag Set">Hashtag Set</option>
             </select>
           </div>
           <div class="form-field">
@@ -305,16 +298,22 @@
       <div id="output-area"></div>
     </div>
 
-  </div><!-- /app-container -->
-</div><!-- /page-app -->
-
-
-<!-- SCRIPTS — load order matters -->
-<script src="trends.js"></script>
+  </div></div><script src="trends.js"></script>
 <script src="engine.js"></script>
 <script src="ui.js"></script>
 <script src="groq.js"></script>
 <script src="app.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const savedAvatar = localStorage.getItem("userProfileAvatar");
+    if (savedAvatar) {
+      document.querySelectorAll(".nav-avatar-circle").forEach(circle => {
+        circle.innerHTML = `<img src="${savedAvatar}" alt="Profile Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;" />`;
+      });
+    }
+  });
+</script>
 
 </body>
 </html>
