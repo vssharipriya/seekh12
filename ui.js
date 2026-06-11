@@ -211,10 +211,16 @@ const UI = (() => {
   /* ── Render campaign output ── */
   function renderCampaignOutput(campaign, contentType, platform, brand, trend, isAI) {
     const initials = brand.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-    const previewCaption = campaign.caption.split("\n")[0].split(".")[0];
+    const previewCaption = campaign.caption ? campaign.caption.split("\n")[0].split(".")[0] : "";
+
+    // Aesthetic rounded rectangle button token
+    const copyButtonHtml = `
+      <button class="btn-copy" style="border-radius: 6px; padding: 4px 12px; font-family: inherit; font-size: 11px; font-weight: 500; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; border: 1px solid var(--border, #e2e8f0); background: transparent; transition: all 0.2s ease;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copy</span>
+      </button>`;
 
     document.getElementById("output-area").innerHTML = `
-
       <div class="output-card">
         <div class="output-header">
           <div class="output-header-title">
@@ -223,36 +229,74 @@ const UI = (() => {
           <div class="output-platform-badge">📱 ${escHtml(platform)}</div>
         </div>
         <div class="output-body">
+          
           <div class="output-block">
-            <div class="output-block-label">Hook</div>
-            <div class="output-hook">${escHtml(campaign.hook)}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div class="output-block-label" style="margin: 0;">Hook</div>
+              ${copyButtonHtml}
+            </div>
+            <div class="output-hook txt-target">${escHtml(campaign.hook)}</div>
           </div>
+
           <div class="output-block">
-            <div class="output-block-label">Caption</div>
-            <div class="output-caption">${escHtml(campaign.caption)}</div>
-          </div>
-          <div class="output-block">
-            <div class="output-block-label">Visual Concept</div>
-            <div class="output-visual">${escHtml(campaign.visual)}</div>
-          </div>
-          <div class="output-block">
-            <div class="output-block-label">Hashtags</div>
-            <div class="hashtag-row">
-              ${campaign.hashtags.map(h => `<span class="hashtag">${escHtml(h)}</span>`).join("")}
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div class="output-block-label" style="margin: 0;">Suggested Audio</div>
+              ${copyButtonHtml}
+            </div>
+            <div class="output-audio txt-target" style="font-family: 'SF Pro Mono', 'Courier New', monospace; font-size: 13px; font-weight: 600; color: var(--accent, #3b82f6); display: inline-flex; align-items: center; gap: 6px; letter-spacing: -0.2px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.8;"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+              ${escHtml(campaign.song || "Trending Track")}
             </div>
           </div>
+
           <div class="output-block">
-            <div class="output-block-label">Call to Action</div>
-            <div class="output-cta">${escHtml(campaign.cta)}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div class="output-block-label" style="margin: 0;">Caption</div>
+              ${copyButtonHtml}
+            </div>
+            <div class="output-caption txt-target">${escHtml(campaign.caption)}</div>
           </div>
+
           <div class="output-block">
-            <div class="output-block-label">Best Posting Time</div>
-            <div class="output-best-posting-time">${escHtml(campaign.bestPostingTime)}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div class="output-block-label" style="margin: 0;">Visual Concept</div>
+              ${copyButtonHtml}
+            </div>
+            <div class="output-visual txt-target">${escHtml(campaign.visual)}</div>
           </div>
+
           <div class="output-block">
-            <div class="output-block-label">Meme Template</div>
-            <div class="output-meme-template">${escHtml(campaign.memeTemplate)}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div class="output-block-label" style="margin: 0;">Hashtags</div>
+              ${copyButtonHtml}
+            </div>
+            <div class="hashtag-row txt-target">${campaign.hashtags.map(h => `<span class="hashtag">${escHtml(h)}</span>`).join(" ")}</div>
           </div>
+
+          <div class="output-block">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div class="output-block-label" style="margin: 0;">Call to Action</div>
+              ${copyButtonHtml}
+            </div>
+            <div class="output-cta txt-target">${escHtml(campaign.cta)}</div>
+          </div>
+
+          <div class="output-block">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div class="output-block-label" style="margin: 0;">Best Posting Time</div>
+              ${copyButtonHtml}
+            </div>
+            <div class="output-best-posting-time txt-target">${escHtml(campaign.bestPostingTime)}</div>
+          </div>
+
+          <div class="output-block">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div class="output-block-label" style="margin: 0;">Meme Template</div>
+              ${copyButtonHtml}
+            </div>
+            <div class="output-meme-template txt-target">${escHtml(campaign.memeTemplate)}</div>
+          </div>
+
         </div>
       </div>
 
@@ -265,13 +309,16 @@ const UI = (() => {
           </div>
         </div>
         <div class="preview-image-area">
-          <div class="preview-image-text">${escHtml(trend.tags[0])} Aesthetic</div>
+          <div class="preview-image-text">${escHtml(trend.tags && trend.tags[0] ? trend.tags[0] : "Trend")} Aesthetic</div>
           <div class="preview-image-tag">${escHtml(brand.industry)}</div>
+          <div style="position: absolute; bottom: 8px; left: 8px; display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.6); padding: 2px 8px; border-radius: 20px; font-size: 10px; color: #fff; font-family: monospace;">
+            🎵 ${escHtml(campaign.song || "Original Audio")}
+          </div>
         </div>
         <div class="preview-body">
           <div class="preview-caption-text">
             <strong>${escHtml(brand.name)}</strong> ${escHtml(previewCaption)}.<br>
-            <span style="color:var(--text-light);font-size:12px">${campaign.hashtags.slice(0,3).join(" ")}</span>
+            <span style="color:var(--text-light);font-size:12px">${campaign.hashtags ? campaign.hashtags.slice(0,3).join(" ") : ""}</span>
           </div>
           <div class="preview-actions">
             <span class="preview-action">♡ 2.4k</span>
@@ -315,6 +362,39 @@ const UI = (() => {
   function slugify(str) {
     return str.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   }
+
+  // ==========================================
+  // MARKTREND AI — CLIPBOARD COPY MECHANICS
+  // ==========================================
+  document.addEventListener('click', async (event) => {
+    const copyBtn = event.target.closest('.btn-copy');
+    if (!copyBtn) return;
+
+    const parentBlock = copyBtn.closest('.output-block');
+    const textTarget = parentBlock ? parentBlock.querySelector('.txt-target') : null;
+
+    if (textTarget) {
+      // Strips internal SVG/HTML tag artifacts when copying the audio line text structure
+      const textToCopy = textTarget.innerText.trim();
+
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+
+        const label = copyBtn.querySelector('span');
+        if (label) {
+          label.textContent = 'Copied!';
+          copyBtn.style.borderColor = 'var(--accent, #3b82f6)';
+          
+          setTimeout(() => {
+            label.textContent = 'Copy';
+            copyBtn.style.borderColor = '';
+          }, 2000);
+        }
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+      }
+    }
+  });
 
   return {
     showPage,
