@@ -892,3 +892,49 @@ footer span { color: var(--accent); }
   .auth-glass { padding: 1.75rem 1.35rem 1.5rem; }
   .auth-avatar-ring { width: 56px; height: 56px; margin-bottom: 1.25rem; }
 }
+
+/* ─── GLOBAL TOP-RIGHT PROFILE NAV ────────────────────────────── */
+.global-profile-nav {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 100; /* Ensures it stays above other content cards */
+  text-decoration: none;
+  transition: transform 0.25s cubic-bezier(.4, 0, .2, 1);
+}
+
+.global-profile-nav:hover {
+  transform: scale(1.08);
+}
+
+.nav-avatar-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(26, 24, 21, 0.45); /* Matches your var(--glass-bg) */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15); /* Sleek glass border */
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.global-profile-nav:hover .nav-avatar-circle {
+  border-color: rgba(184, 169, 245, 0.6); /* Highlights with your theme lavender */
+  box-shadow: 0 0 15px rgba(184, 169, 245, 0.25);
+}
+
+.nav-avatar-icon {
+  font-size: 18px;
+  opacity: 0.85;
+}
+
+/* Responsive adjustment for small mobile viewports */
+@media (max-width: 720px) {
+  .global-profile-nav {
+    top: 18px;
+    right: 18px; /* Standardizes placement next to mobile UI patterns */
+  }
+}
