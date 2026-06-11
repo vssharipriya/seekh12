@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Settings — Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── TOKENS ──────────────────────────────────────────────────── */
+    :root {
+      --lavender: #b8a9f5;
+      --lavender-dim: rgba(184,169,245,0.18);
+      --lavender-pill: rgba(184,169,245,0.82);
+      --gold: #e8c97a;
+      --white: #ffffff;
+      --muted: rgba(255,255,255,0.45);
+      --glass-bg: rgba(26,24,21,0.45);
+      --glass-border: rgba(255,255,255,0.10);
+      --input-bg: rgba(255,255,255,0.07);
+      --input-border: rgba(255,255,255,0.13);
+      --input-focus: rgba(184,169,245,0.55);
+      --placeholder: rgba(255,255,255,0.35);
+      --btn-gradient: linear-gradient(135deg,#b8a9f5 0%,#8b77e8 100%);
+      --sidebar-w: 260px;
+      --radius-card: 18px;
+      --radius-btn: 14px;
+      --transition: 0.25s cubic-bezier(.4,0,.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─── PAGE BACKGROUND ─────────────────────────────────────────── */
+    body {
+      min-height: 100vh;
+      font-family: 'DM Sans', sans-serif;
+      background: #0e0c16;
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* Ambient blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, rgba(139,119,232,0.28) 0%, transparent 70%);
+      top: -140px; left: -100px;
+    }
+    .blob-2 {
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, rgba(184,169,245,0.15) 0%, transparent 70%);
+      bottom: -100px; right: -80px;
+    }
+    .blob-3 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(232,201,122,0.10) 0%, transparent 70%);
+      top: 50%; left: 45%;
+    }
+
+    /* ─── LAYOUT ──────────────────────────────────────────────────── */
+    .app {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── SIDEBAR ─────────────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: rgba(20,17,30,0.72);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      border-right: 1px solid var(--glass-border);
+      display: flex;
+      flex-direction: column;
+      padding: 36px 20px 32px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      transition: transform var(--transition);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 44px;
+      padding-left: 4px;
+    }
+    .sidebar-logo .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--btn-gradient);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+    }
+    .sidebar-logo .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--white) 0%, var(--lavender) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .sidebar-title {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-left: 14px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background var(--transition), color var(--transition), transform var(--transition);
+      border: 1px solid transparent;
+      user-select: none;
+    }
+    .nav-item:hover {
+      background: var(--lavender-dim);
+      color: var(--white);
+      transform: translateX(3px);
+    }
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(184,169,245,0.22) 0%, rgba(139,119,232,0.18) 100%);
+      border-color: rgba(184,169,245,0.25);
+      color: var(--lavender);
+    }
+    .nav-item .nav-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--input-bg);
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      flex-shrink: 0;
+      transition: background var(--transition);
+    }
+    .nav-item.active .nav-icon {
+      background: var(--lavender-dim);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--glass-border);
+      margin: 20px 0;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 20px;
+    }
+    .sidebar-avatar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--glass-border);
+    }
+    .sidebar-avatar-row .mini-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--btn-gradient);
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .sidebar-avatar-row .mini-info { overflow: hidden; }
+    .sidebar-avatar-row .mini-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sidebar-avatar-row .mini-role {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 200;
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: rgba(20,17,30,0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+    }
+    .hamburger span {
+      display: block;
+      width: 20px; height: 2px;
+      background: var(--lavender);
+      border-radius: 2px;
+      transition: var(--transition);
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 150;
+      backdrop-filter: blur(2px);
+    }
+    .sidebar-overlay.visible { display: block; }
+
+    /* ─── MAIN CONTENT ────────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      padding: 44px 48px;
+      overflow-y: auto;
+      animation: fadeInUp 0.5s ease both;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-header { margin-bottom: 36px; }
+    .page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--white) 0%, var(--lavender) 60%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+    .page-header p {
+      margin-top: 6px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* ─── SECTION LABEL ───────────────────────────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--lavender);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(184,169,245,0.3), transparent);
+    }
+
+    /* ─── PROFILE HEADER CARD ─────────────────────────────────────── */
+    .profile-header-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-card);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-header-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(184,169,245,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Avatar */
+    .avatar-wrapper {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .avatar-circle {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2a2540 0%, #1a1728 100%);
+      border: 2.5px solid rgba(184,169,245,0.35);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      transition: box-shadow var(--transition);
+      cursor: pointer;
+    }
+    .avatar-circle:hover {
+      box-shadow: 0 0 0 4px rgba(184,169,245,0.25), 0 0 40px rgba(184,169,245,0.2);
+    }
+    .avatar-circle img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .avatar-circle img.visible { display: block; }
+    .avatar-default-icon {
+      font-size: 54px;
+      opacity: 0.6;
+    }
+    .avatar-badge {
+      position: absolute;
+      bottom: 4px; right: 4px;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--btn-gradient);
+      border: 2px solid #0e0c16;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: transform var(--transition);
+    }
+    .avatar-badge:hover { transform: scale(1.12); }
+
+    /* Avatar info */
+    .avatar-info { flex: 1; }
+    .avatar-info .display-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .avatar-info .display-email {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    /* Upload button */
+    .btn-upload {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 20px;
+      border-radius: 10px;
+      background: var(--lavender-dim);
+      border: 1px solid rgba(184,169,245,0.25);
+      color: var(--lavender);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-upload:hover {
+      background: rgba(184,169,245,0.28);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(184,169,245,0.15);
+    }
+
+    /* Hidden file input */
+    #file-input { display: none; }
+
+    /* ─── DETAIL ROWS ─────────────────────────────────────────────── */
+    .details-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .detail-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 16px 24px;
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      align-items: center;
+      gap: 16px;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      animation: fadeInUp 0.5s ease both;
+    }
+    .detail-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      border-color: rgba(184,169,245,0.2);
+    }
+    .detail-card:nth-child(1) { animation-delay: 0.05s; }
+    .detail-card:nth-child(2) { animation-delay: 0.10s; }
+    .detail-card:nth-child(3) { animation-delay: 0.15s; }
+    .detail-card:nth-child(4) { animation-delay: 0.20s; }
+    .detail-card:nth-child(5) { animation-delay: 0.25s; }
+
+    .detail-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .detail-label .lbl-icon {
+      font-size: 14px;
+      opacity: 0.7;
+    }
+    .detail-value {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--white);
+    }
+    .detail-value.email { color: var(--lavender); }
+    .detail-value.muted-val { color: var(--muted); font-style: italic; font-weight: 400; }
+
+    /* dot separator */
+    .dot-sep {
+      display: none;
+    }
+
+    /* ─── ACTION BUTTONS ──────────────────────────────────────────── */
+    .action-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      flex: 1;
+      min-width: 180px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px 28px;
+      border-radius: var(--radius-btn);
+      background: var(--btn-gradient);
+      border: none;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+      box-shadow: 0 4px 20px rgba(139,119,232,0.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-action::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background var(--transition);
+    }
+    .btn-action:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 36px rgba(139,119,232,0.48);
+      filter: brightness(1.07);
+    }
+    .btn-action:hover::before {
+      background: rgba(255,255,255,0.06);
+    }
+    .btn-action:active { transform: translateY(-1px); }
+    .btn-action .btn-icon { font-size: 17px; }
+
+    /* Glass variant */
+    .btn-action.glass-variant {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(184,169,245,0.3);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .btn-action.glass-variant:hover {
+      box-shadow: 0 10px 36px rgba(184,169,245,0.2);
+    }
+
+    /* ─── RESPONSIVE ──────────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      .main { padding: 36px 28px; }
+      .detail-card { grid-template-columns: 110px 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .hamburger { display: flex; }
+
+      .sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        height: 100vh;
+        z-index: 160;
+        transform: translateX(-100%);
+      }
+      .sidebar.open { transform: translateX(0); }
+
+      .main {
+        padding: 24px 18px;
+        padding-top: 72px;
+      }
+
+      .profile-header-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 24px 20px;
+      }
+      .avatar-info .display-name { font-size: 20px; }
+      .btn-upload { width: 100%; justify-content: center; }
+
+      .detail-card {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        padding: 14px 18px;
+      }
+      .detail-label { font-size: 11px; }
+
+      .action-row { flex-direction: column; }
+      .btn-action { min-width: unset; }
+
+      .page-header h1 { font-size: 26px; }
+    }
+
+    /* ─── TOAST ───────────────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: rgba(20,17,30,0.92);
+      border: 1px solid rgba(184,169,245,0.3);
+      color: var(--lavender);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 12px 20px;
+      border-radius: 12px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background blobs -->
+  <div class="blob blob-1" aria-hidden="true"></div>
+  <div class="blob blob-2" aria-hidden="true"></div>
+  <div class="blob blob-3" aria-hidden="true"></div>
+
+  <!-- Hamburger -->
+  <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay" role="presentation"></div>
+
+  <div class="app">
+
+    <!-- ── SIDEBAR ────────────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar" aria-label="Settings navigation">
+
+      <div class="sidebar-logo">
+        <div class="logo-icon" aria-hidden="true">✦</div>
+        <span class="logo-text">TrendIdea</span>
+      </div>
+
+      <p class="sidebar-title">Settings</p>
+
+      <nav class="sidebar-nav" role="navigation">
+        <a href="#account" class="nav-item active" data-section="Account" role="menuitem">
+          <span class="nav-icon" aria-hidden="true">👤</span>
+          Account
+        </a>
+        <a href="#notifications" class="nav-item" data-section="Notifications" role="menuitem">
+          <span class="nav-icon" aria-hidden="true">🔔</span>
+          Notifications
+        </a>
+        <a href="#privacy" class="nav-item" data-section="Privacy" role="menuitem">
+          <span class="nav-icon" aria-hidden="true">🔒</span>
+          Privacy
+        </a>
+        <a href="#language" class="nav-item" data-section="Language" role="menuitem">
+          <span class="nav-icon" aria-hidden="true">🌐</span>
+          Language
+        </a>
+        <a href="#security" class="nav-item" data-section="Security" role="menuitem">
+          <span class="nav-icon" aria-hidden="true">🛡️</span>
+          Security
+        </a>
+
+        <div class="sidebar-divider" role="separator"></div>
+
+        <a href="#help" class="nav-item" data-section="Help" role="menuitem">
+          <span class="nav-icon" aria-hidden="true">💬</span>
+          Help
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-avatar-row">
+          <div class="mini-avatar" aria-hidden="true">🌙</div>
+          <div class="mini-info">
+            <div class="mini-name">Haripriya</div>
+            <div class="mini-role">BTech · CS</div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── MAIN CONTENT ───────────────────────────────────────────── -->
+    <main class="main" id="main-content" aria-label="Account settings main content">
+
+      <header class="page-header">
+        <h1>Account Settings</h1>
+        <p>Manage your personal information and preferences</p>
+      </header>
+
+      <!-- User Info -->
+      <p class="section-label">User Info</p>
+
+      <!-- Profile Header Card -->
+      <div class="profile-header-card" role="region" aria-label="Profile photo">
+        <div class="avatar-wrapper">
+          <div class="avatar-circle" id="avatar-circle" title="Click to change picture" tabindex="0" role="button" aria-label="Profile picture, click to change">
+            <img id="avatar-img" src="" alt="Profile photo" />
+            <span class="avatar-default-icon" id="avatar-default" aria-hidden="true">👤</span>
+          </div>
+          <div class="avatar-badge" id="avatar-badge" title="Change photo" aria-label="Change photo" tabindex="0" role="button">✏️</div>
+        </div>
+
+        <div class="avatar-info">
+          <div class="display-name" id="display-name">Haripriya</div>
+          <div class="display-email" id="display-email">haripriya@email.com</div>
+          <button class="btn-upload" id="upload-btn" aria-label="Upload or change profile picture">
+            <span aria-hidden="true">📷</span>
+            Change Picture
+          </button>
+          <input type="file" id="file-input" accept="image/*" aria-hidden="true" />
+        </div>
+      </div>
+
+      <!-- User Details Section -->
+      <p class="section-label">User Details</p>
+
+      <div class="details-grid" role="list" aria-label="User details">
+
+        <div class="detail-card" role="listitem">
+          <div class="detail-label">
+            <span class="lbl-icon" aria-hidden="true">✦</span>Name
+          </div>
+          <div class="detail-value">Haripriya</div>
+        </div>
+
+        <div class="detail-card" role="listitem">
+          <div class="detail-label">
+            <span class="lbl-icon" aria-hidden="true">🎂</span>Date of Birth
+          </div>
+          <div class="detail-value">January 1, 2007</div>
+        </div>
+
+        <div class="detail-card" role="listitem">
+          <div class="detail-label">
+            <span class="lbl-icon" aria-hidden="true">⚧</span>Gender
+          </div>
+          <div class="detail-value">Female</div>
+        </div>
+
+        <div class="detail-card" role="listitem">
+          <div class="detail-label">
+            <span class="lbl-icon" aria-hidden="true">✉️</span>Email ID
+          </div>
+          <div class="detail-value email">haripriya@email.com</div>
+        </div>
+
+        <div class="detail-card" role="listitem">
+          <div class="detail-label">
+            <span class="lbl-icon" aria-hidden="true">📍</span>Location
+          </div>
+          <div class="detail-value">Tokyo, Japan</div>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-row" role="group" aria-label="Quick actions">
+        <a href="calendar.html" class="btn-action" id="btn-calendar" aria-label="Go to My Calendar">
+          <span class="btn-icon" aria-hidden="true">📅</span>
+          My Calendar
+        </a>
+        <a href="previous-works.html" class="btn-action glass-variant" id="btn-prev-works" aria-label="Go to Previous Works">
+          <span class="btn-icon" aria-hidden="true">🗂️</span>
+          Previous Works
+        </a>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* ── SIDEBAR TOGGLE ──────────────────────────────────────────── */
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      hamburger.classList.add('open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      overlay.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      overlay.classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+    overlay.addEventListener('click', closeSidebar);
+
+    /* ── NAV ITEM ACTIVE STATE ───────────────────────────────────── */
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        if (window.innerWidth <= 720) closeSidebar();
+      });
+    });
+
+    /* ── AVATAR UPLOAD ───────────────────────────────────────────── */
+    const avatarCircle = document.getElementById('avatar-circle');
+    const avatarBadge = document.getElementById('avatar-badge');
+    const avatarImg = document.getElementById('avatar-img');
+    const avatarDefault = document.getElementById('avatar-default');
+    const fileInput = document.getElementById('file-input');
+    const uploadBtn = document.getElementById('upload-btn');
+
+    function triggerUpload() { fileInput.click(); }
+    uploadBtn.addEventListener('click', triggerUpload);
+    avatarCircle.addEventListener('click', triggerUpload);
+    avatarBadge.addEventListener('click', triggerUpload);
+
+    // Keyboard accessibility
+    [avatarCircle, avatarBadge].forEach(el => {
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); triggerUpload(); } });
+    });
+
+    fileInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { showToast('Please choose an image file.'); return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        avatarImg.src = e.target.result;
+        avatarImg.classList.add('visible');
+        avatarDefault.style.display = 'none';
+        showToast('✓ Profile photo updated');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    /* ── BUTTON ROUTING ──────────────────────────────────────────── */
+    document.getElementById('btn-calendar').addEventListener('click', function(e) {
+      // Prevents broken navigation if file doesn't exist (demo safety)
+      // Remove the if-block when deploying with real calendar.html
+      const href = this.getAttribute('href');
+      if (href && href !== '#') {
+        // allow default navigation
+      } else {
+        e.preventDefault();
+        showToast('📅 Navigating to Calendar…');
+      }
+    });
+
+    document.getElementById('btn-prev-works').addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href && href !== '#') {
+        // allow default navigation
+      } else {
+        e.preventDefault();
+        showToast('🗂️ Navigating to Previous Works…');
+      }
+    });
+
+    /* ── TOAST ───────────────────────────────────────────────────── */
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+    }
+
+    /* ── REDUCED MOTION ──────────────────────────────────────────── */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.detail-card, .main').forEach(el => {
+        el.style.animation = 'none';
+      });
+    }
+  </script>
+
+</body>
+</html>
