@@ -83,6 +83,14 @@ const CampaignEngine = (() => {
       "Facebook": "Image meme, Reaction meme format"
     };
 
+    // Platform-specific trending songs / audio suggestions
+    const trendingSongs = {
+  "TikTok": "Nasty - Tinashe",
+  "Instagram": "Espresso - Sabrina Carpenter",
+  "YouTube": "Not Like Us - Kendrick Lamar",
+  "X (Twitter)": "Million Dollar Baby - Tommy Richman",
+  "Facebook": "Birds of a Feather - Billie Eilish"
+};
     return {
       hook,
       caption,
@@ -90,7 +98,9 @@ const CampaignEngine = (() => {
       hashtags,
       cta,
       bestPostingTime: postingTimes[platform] || "6 PM – 9 PM",
-      memeTemplate: memeTemplates[platform] || "Trending meme format"
+      memeTemplate: memeTemplates[platform] || "Trending meme format",
+      song: trendingSongs[platform] || "Espresso - Sabrina Carpenter"
+
     };
   }
 
