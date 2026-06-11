@@ -26,6 +26,20 @@
   --shadow-sm:    0 2px 12px rgba(92,61,46,0.08);
   --shadow-md:    0 8px 28px rgba(92,61,46,0.13);
   --shadow-lg:    0 18px 52px rgba(92,61,46,0.18);
+
+  /* Auth-specific tokens */
+  --auth-lavender:       #a89bc8;
+  --auth-lavender-soft:  rgba(168,155,200,0.22);
+  --auth-lavender-pill:  rgba(168,155,200,0.88);
+  --auth-gold:           #d4a853;
+  --auth-glass-bg:       rgba(26, 24, 21, 0.45);
+  --auth-glass-border:   rgba(255,255,255,0.10);
+  --auth-input-bg:       rgba(255,255,255,0.07);
+  --auth-input-border:   rgba(255,255,255,0.13);
+  --auth-input-focus:    rgba(168,155,200,0.55);
+  --auth-text-primary:   #f5f0ea;
+  --auth-text-muted:     rgba(245,240,234,0.52);
+  --auth-text-placeholder: rgba(245,240,234,0.38);
 }
 
 html { scroll-behavior: smooth; font-size: 16px; }
@@ -443,7 +457,7 @@ footer span { color: var(--accent); }
 .hashtag-row { display: flex; flex-wrap: wrap; gap: 6px; }
 /* Specifically for the Time */
 .output-best-posting-time {
-    font-family: 'JetBrains Mono', monospace; /* Or 'monospace' if you haven't imported a specific one */
+    font-family: 'JetBrains Mono', monospace;
     font-size: 15px;
     color: var(--dark-brown);
     letter-spacing: 0.5px;
@@ -459,7 +473,7 @@ footer span { color: var(--accent); }
     background: var(--light-tan);
     padding: 6px 12px;
     border-radius: 8px;
-    display: inline-block; /* Makes the background wrap the text */
+    display: inline-block;
     margin-top: 4px;
 }
 
@@ -533,6 +547,327 @@ footer span { color: var(--accent); }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+
+/* ═══════════════════════════════════════
+   AUTH PAGE  (page-auth)
+   Glassmorphic Login / Sign-Up Gateway
+═══════════════════════════════════════ */
+
+#page-auth {
+  /* Full-viewport starry night mountain background */
+  width: 100%;
+  min-height: 100vh;
+  background-image: url('../1781013098287.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle dark veil so glass panel reads cleanly over any image */
+#page-auth::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 8, 6, 0.38);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Auth top bar ── */
+.auth-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  height: 64px;
+  padding: 0 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Deliberately transparent so the mountain landscape breathes through */
+  background: transparent;
+}
+
+/* MarkTrend wordmark — top-left */
+.auth-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.4px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s;
+  /* Gold/lavender dual-accent on the "T" via a span */
+}
+.auth-logo:hover { opacity: 0.82; }
+.auth-logo .logo-accent { color: var(--auth-lavender); }
+
+/* ── Pill tab switcher — top-right ── */
+.auth-tab-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 30px;
+  padding: 4px;
+}
+
+/* Sliding lavender pill — sits behind tab text via z-index */
+.auth-tab-pill {
+  position: absolute;
+  top: 4px;
+  height: calc(100% - 8px);
+  border-radius: 26px;
+  background: var(--auth-lavender-pill);
+  backdrop-filter: blur(6px);
+  /* Default position: over "Sign Up" (right tab) */
+  left: calc(50% + 4px);
+  width: calc(50% - 8px);
+  transition: left 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+  box-shadow: 0 2px 12px rgba(168,155,200,0.35);
+}
+
+/* Pill shifted left → over "Login" */
+.auth-tab-bar.show-login .auth-tab-pill {
+  left: 4px;
+  width: calc(50% - 8px);
+}
+
+.auth-tab-btn {
+  position: relative;
+  z-index: 1;
+  padding: 7px 22px;
+  border: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.52);
+  cursor: pointer;
+  border-radius: 26px;
+  transition: color 0.28s;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+/* Active tab text becomes bright white */
+.auth-tab-bar.show-login  .auth-tab-btn[data-panel="login"],
+.auth-tab-bar.show-signup .auth-tab-btn[data-panel="signup"] {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ── Central glass panel ── */
+.auth-panel-wrap {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 1.25rem;
+  margin-top: 80px; /* clear the fixed topbar */
+}
+
+.auth-glass {
+  background: var(--auth-glass-bg);
+  backdrop-filter: blur(15px) saturate(140%);
+  -webkit-backdrop-filter: blur(15px) saturate(140%);
+  border-radius: 12px;
+  border: 1px solid var(--auth-glass-border);
+  padding: 2.25rem 2rem 2rem;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+}
+
+/* ── Avatar accent ring at top-center ── */
+.auth-avatar-ring {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--auth-lavender-soft);
+  border: 2px solid var(--auth-lavender);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.6rem;
+  box-shadow: 0 0 0 6px rgba(168,155,200,0.10),
+              0 0 24px rgba(168,155,200,0.20);
+}
+
+.auth-avatar-ring svg {
+  width: 28px;
+  height: 28px;
+  stroke: var(--auth-lavender);
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Form panels — cross-fade swap ── */
+.auth-form-panel {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.32s ease;
+  animation: none;
+}
+
+.auth-form-panel.active {
+  display: block;
+  animation: authFadeIn 0.36s ease forwards;
+}
+
+@keyframes authFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Field label ── */
+.auth-label {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.6px;
+  color: var(--auth-text-primary);
+  margin-bottom: 7px;
+  opacity: 0.88;
+}
+
+/* ── Input wrapper (icon + field) ── */
+.auth-input-wrap {
+  position: relative;
+  margin-bottom: 1.15rem;
+}
+
+.auth-input-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 17px;
+  height: 17px;
+  pointer-events: none;
+  opacity: 0.50;
+}
+
+.auth-input-icon svg {
+  width: 17px;
+  height: 17px;
+  stroke: var(--auth-text-primary);
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 11px 14px 11px 42px;
+  background: var(--auth-input-bg);
+  border: 1px solid var(--auth-input-border);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--auth-text-primary);
+  outline: none;
+  transition: border-color 0.22s, box-shadow 0.22s, background 0.22s;
+  /* Prevent browser autofill from overriding the glass look */
+  -webkit-text-fill-color: var(--auth-text-primary);
+}
+
+.auth-input::placeholder {
+  color: var(--auth-text-placeholder);
+  font-size: 13.5px;
+}
+
+.auth-input:focus {
+  border-color: var(--auth-lavender);
+  background: rgba(168,155,200,0.07);
+  box-shadow: 0 0 0 3px rgba(168,155,200,0.18);
+}
+
+/* Autofill override — keep glass bg */
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover,
+.auth-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px rgba(26,24,21,0.65) inset;
+  -webkit-text-fill-color: var(--auth-text-primary);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ── Primary action button ── */
+.auth-btn-primary {
+  width: 100%;
+  padding: 12px 24px;
+  margin-top: 0.35rem;
+  background: linear-gradient(135deg, var(--auth-lavender) 0%, #8b7bbf 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 4px 18px rgba(168,155,200,0.30);
+}
+
+.auth-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(168,155,200,0.42);
+  opacity: 0.94;
+}
+
+.auth-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ── Subtext route link ── */
+.auth-subtext {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(245,240,234,0.50);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.auth-subtext-link {
+  color: var(--auth-lavender);
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  text-decoration: none;
+  transition: color 0.2s, opacity 0.2s;
+  display: inline;
+}
+
+.auth-subtext-link:hover {
+  color: #c8bde8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Field group spacing — last field before button gets tighter bottom ── */
+.auth-field-group { margin-bottom: 0; }
+.auth-field-group + .auth-btn-primary { margin-top: 0.55rem; }
+
+
 /* ═══════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════ */
@@ -548,4 +883,12 @@ footer span { color: var(--accent); }
   .hero-title { font-size: 2.1rem; }
   .selected-trend-row { flex-wrap: wrap; }
   .ai-toggle-row { flex-direction: column; align-items: flex-start; }
+
+  /* Auth responsive */
+  .auth-topbar { padding: 0 1.25rem; }
+  .auth-logo { font-size: 1.25rem; }
+  .auth-tab-btn { padding: 6px 16px; font-size: 12px; }
+  .auth-panel-wrap { margin-top: 72px; padding: 0 1rem; }
+  .auth-glass { padding: 1.75rem 1.35rem 1.5rem; }
+  .auth-avatar-ring { width: 56px; height: 56px; margin-bottom: 1.25rem; }
 }
