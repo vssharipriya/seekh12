@@ -41,6 +41,7 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      background-attachment: fixed;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -107,7 +108,6 @@
       transition: left 0.38s cubic-bezier(0.4,0,0.2,1),
                   width 0.38s cubic-bezier(0.4,0,0.2,1);
       z-index: 0;
-      /* JS will set left + width */
     }
 
     .tab-bar button {
@@ -148,7 +148,7 @@
       border: 1px solid var(--glass-border);
       border-radius: var(--radius-panel);
       width: 100%;
-      max-width: 400px;
+      max-width: 440px; /* Slightly wider layout to elegantly hold more fields */
       padding: 36px 32px 32px;
       box-shadow:
         0 8px 48px rgba(0,0,0,0.38),
@@ -217,7 +217,7 @@
       opacity: 0.45;
       width: 16px; height: 16px;
     }
-    .input-wrap input {
+    .input-wrap input, .input-wrap select {
       flex: 1;
       background: none;
       border: none;
@@ -228,13 +228,31 @@
       padding: 11px 0;
     }
     .input-wrap input::placeholder { color: var(--placeholder); }
+    
+    /* Dynamic adjustments for dark dropdown menus across browsers */
+    .input-wrap select {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .input-wrap select option {
+      background: #1a1815;
+      color: var(--white);
+    }
+
+    /* Custom UI calendar color inversion for browser picker modules */
+    .input-wrap input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      opacity: 0.5;
+      cursor: pointer;
+    }
 
     /* ─── PRIMARY ACTION BUTTON ─── */
     .btn-primary {
       display: block;
       width: 100%;
       padding: 12px;
-      margin-top: 22px;
+      margin-top: 24px;
       background: var(--btn-gradient);
       border: none;
       border-radius: var(--radius-btn);
@@ -266,7 +284,7 @@
     }
     .switch-text a:hover { color: #d3c9fa; text-decoration: underline; }
 
-    /* ─── STAR PARTICLES (ambient) ─── */
+    /* ─── STAR PARTICLES ─── */
     .stars {
       position: fixed;
       inset: 0;
@@ -286,19 +304,118 @@
       50%      { opacity: var(--peak, 0.7); }
     }
 
+    /* ─── GLASSMORPHISM POPUP MODAL ─── */
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0);
+      backdrop-filter: blur(0);
+      -webkit-backdrop-filter: blur(0);
+      transition: background 0.32s ease, backdrop-filter 0.32s ease;
+      animation: fadeInBlur 0.4s ease forwards;
+    }
+    .popup-overlay.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    @keyframes fadeInBlur {
+      from { background: rgba(0, 0, 0, 0); backdrop-filter: blur(0); }
+      to { background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(8px); }
+    }
+
+    .popup-modal {
+      background: rgba(26, 24, 21, 0.65);
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      border: 1px solid rgba(184, 169, 245, 0.25);
+      border-radius: 16px;
+      padding: 32px 28px;
+      width: 90%;
+      max-width: 360px;
+      box-shadow:
+        0 12px 56px rgba(0, 0, 0, 0.48),
+        0 1px 0 rgba(255, 255, 255, 0.08) inset,
+        0 0 0 1px rgba(184, 169, 245, 0.15) inset;
+      animation: popupScaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      opacity: 0;
+      transform: scale(0.85);
+    }
+
+    @keyframes popupScaleIn {
+      from { opacity: 0; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .popup-modal.closing {
+      animation: popupScaleOut 0.32s cubic-bezier(0.36, 0, 0.66, -0.56) forwards;
+    }
+
+    @keyframes popupScaleOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.85); }
+    }
+
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .popup-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--lavender);
+      letter-spacing: 0.02em;
+    }
+
+    .popup-close {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .popup-close:hover {
+      color: var(--lavender);
+      background: rgba(184, 169, 245, 0.1);
+    }
+
+    .popup-message {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+    }
+
     /* ─── RESPONSIVE ─── */
     @media (max-width: 480px) {
       header { padding: 18px 20px; }
       .glass-panel { padding: 28px 20px 24px; }
+      .popup-modal { padding: 24px 20px; max-width: 85%; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Ambient star particles -->
   <div class="stars" id="stars"></div>
 
-  <!-- ─── HEADER ─── -->
   <header>
     <a href="index.html" class="brand">
       <span class="mark">Mark</span><span class="trend">Trend</span>
@@ -311,47 +428,104 @@
     </div>
   </header>
 
-  <!-- ─── MAIN PANEL ─── -->
   <main>
     <div class="glass-panel">
-
       <div class="forms-wrapper">
 
-        <!-- STATE A: SIGN UP (default active) -->
         <div class="form-view active" id="viewSignup">
           <div class="avatar-ring">
-            <!-- Person icon -->
             <svg viewBox="0 0 24 24" fill="none" stroke="#b8a9f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
 
-          <!-- Username -->
           <div class="field">
-            <label for="su-username">Username</label>
+            <label for="su-name">Name</label>
             <div class="input-wrap">
               <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
               </svg>
-              <input id="su-username" type="text" placeholder="Enter your username" autocomplete="username"/>
+              <input id="su-name" type="text" placeholder="Enter your full name" />
             </div>
           </div>
 
-          <!-- Email -->
           <div class="field">
-            <label for="su-email">Email</label>
+            <label for="su-dob">Date of Birth</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <input id="su-dob" type="date" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="su-gender">Gender</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                <path d="M2 12h20"/>
+              </svg>
+              <select id="su-gender">
+                <option value="" disabled selected>Select your gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Non-binary">Non-binary</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="su-email">Email ID</label>
             <div class="input-wrap">
               <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="4" width="20" height="16" rx="2"/>
                 <path d="m2 7 10 7 10-7"/>
               </svg>
-              <input id="su-email" type="email" placeholder="Enter your email" autocomplete="email"/>
+              <input id="su-email" type="email" placeholder="Enter your email address" autocomplete="email"/>
             </div>
           </div>
 
-          <!-- Password -->
+          <div class="field">
+            <label for="su-business">Business</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+              </svg>
+              <input id="su-business" type="text" placeholder="Company or niche area" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="su-location">Location</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <input id="su-location" type="text" placeholder="City, Country" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="su-username">Username</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/>
+              </svg>
+              <input id="su-username" type="text" placeholder="Create unique username" autocomplete="username"/>
+            </div>
+          </div>
+
           <div class="field">
             <label for="su-password">Password</label>
             <div class="input-wrap">
@@ -359,18 +533,17 @@
                 <rect x="3" y="11" width="18" height="11" rx="2"/>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
               </svg>
-              <input id="su-password" type="password" placeholder="Create a password" autocomplete="new-password"/>
+              <input id="su-password" type="password" placeholder="Create strong password" autocomplete="new-password"/>
             </div>
           </div>
 
-          <button class="btn-primary" onclick="goToDashboard()">Sign Up</button>
+          <button class="btn-primary" onclick="validateSignup()">Sign Up</button>
 
           <p class="switch-text">
             Already have an account? <a onclick="switchTo('login')">Log in</a>
           </p>
         </div>
 
-        <!-- STATE B: LOGIN -->
         <div class="form-view" id="viewLogin">
           <div class="avatar-ring">
             <svg viewBox="0 0 24 24" fill="none" stroke="#b8a9f5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -379,7 +552,6 @@
             </svg>
           </div>
 
-          <!-- Username -->
           <div class="field">
             <label for="li-username">Username</label>
             <div class="input-wrap">
@@ -391,7 +563,6 @@
             </div>
           </div>
 
-          <!-- Password -->
           <div class="field">
             <label for="li-password">Password</label>
             <div class="input-wrap">
@@ -403,16 +574,24 @@
             </div>
           </div>
 
-          <button class="btn-primary" onclick="goToDashboard()">Login</button>
+          <button class="btn-primary" onclick="validateLogin()">Login</button>
 
           <p class="switch-text">
             Not registered yet? <a onclick="switchTo('signup')">Sign up</a>
           </p>
         </div>
 
-      </div><!-- /.forms-wrapper -->
-    </div><!-- /.glass-panel -->
-  </main>
+      </div></div></main>
+
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup-modal" id="popupModal">
+      <div class="popup-header">
+        <h2 class="popup-title" id="popupTitle">Alert</h2>
+        <button class="popup-close" id="popupClose" onclick="closePopup()">&times;</button>
+      </div>
+      <p class="popup-message" id="popupMessage">Message goes here.</p>
+    </div>
+  </div>
 
   <script>
     /* ─── STAR PARTICLE GENERATOR ─── */
@@ -472,8 +651,94 @@
       }
     }
 
-    /* ─── DASHBOARD REDIRECT ─── */
-    function goToDashboard() {
+    /* ─── POPUP FUNCTIONS ─── */
+    const popupOverlay = document.getElementById('popupOverlay');
+    const popupModal = document.getElementById('popupModal');
+    const popupTitle = document.getElementById('popupTitle');
+    const popupMessage = document.getElementById('popupMessage');
+
+    function showPopup(title, message) {
+      popupTitle.textContent = title;
+      popupMessage.textContent = message;
+      popupOverlay.classList.add('active');
+      popupModal.classList.remove('closing');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePopup() {
+      popupModal.classList.add('closing');
+      setTimeout(() => {
+        popupOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }, 320);
+    }
+
+    popupOverlay.addEventListener('click', (e) => {
+      if (e.target === popupOverlay) {
+        closePopup();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && popupOverlay.classList.contains('active')) {
+        closePopup();
+      }
+    });
+
+    /* ─── VALIDATION FUNCTIONS ─── */
+
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    function isValidPassword(password) {
+      return password.length >= 8;
+    }
+
+    // Updated Sign Up validation reflecting ordered sequencing parameters
+    function validateSignup() {
+      const name = document.getElementById('su-name').value.trim();
+      const dob = document.getElementById('su-dob').value;
+      const gender = document.getElementById('su-gender').value;
+      const email = document.getElementById('su-email').value.trim();
+      const business = document.getElementById('su-business').value.trim();
+      const location = document.getElementById('su-location').value.trim();
+      const username = document.getElementById('su-username').value.trim();
+      const password = document.getElementById('su-password').value;
+
+      // Check all explicit contextual profile fields filled out
+      if (!name || !dob || !gender || !email || !business || !location || !username || !password) {
+        showPopup('Insufficient Details', 'Please fill in all required operational workspace profile setup fields before continuing.');
+        return;
+      }
+
+      // Validate email format
+      if (!isValidEmail(email)) {
+        showPopup('Invalid Email', 'Please enter a valid global system email address layout target.');
+        return;
+      }
+
+      // Validate password length
+      if (!isValidPassword(password)) {
+        showPopup('Weak Password', 'Your authentication profile structural security key password must contain at least 8 characters.');
+        return;
+      }
+
+      // All variables correct - transition profile settings over to main dashboard system workspace
+      window.location.href = 'main.html';
+    }
+
+    // Login validation
+    function validateLogin() {
+      const username = document.getElementById('li-username').value.trim();
+      const password = document.getElementById('li-password').value;
+
+      if (!username || !password) {
+        showPopup('Insufficient Details', 'Please fill in all required fields before continuing.');
+        return;
+      }
+
       window.location.href = 'main.html';
     }
 
