@@ -362,6 +362,86 @@ const UI = (() => {
   function slugify(str) {
     return str.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   }
+  /**
+ * ═════════════════════════════════════════════════════════════
+ * TrendIdea — UI & Layout Management Engine
+ * ═════════════════════════════════════════════════════════════
+ */
+
+const UI = {
+  /**
+   * Smoothly scrolls the viewport to a target section container
+   * @param {string} elementId - The ID of the target element
+   */
+  scrollTo: function(elementId) {
+    const target = document.getElementById(elementId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      console.warn(`UI.scrollTo: Element with ID "${elementId}" not found.`);
+    }
+  },
+
+  /**
+   * Controls tab switching mechanics within the core application workspace workspace
+   * @param {string} tabName - The data-tab identifier ('brand', 'trends', 'studio')
+   * @param {HTMLElement} element - The button element that triggered the event
+   */
+  switchTab: function(tabName, element) {
+    // 1. Remove active highlight state from all application navigation tabs
+    document.querySelectorAll('.app-tab').forEach(tab => {
+      tab.classList.remove('active');
+    });
+
+    // 2. Add active highlight state to the current clicked tab control element
+    if (element) {
+      element.classList.add('active');
+    } else {
+      const matchingTab = document.querySelector(`.app-tab[data-tab="${tabName}"]`);
+      if (matchingTab) matchingTab.classList.add('active');
+    }
+
+    // 3. Toggle content visibility blocks matching the tab sections
+    document.querySelectorAll('.app-section').forEach(section => {
+      section.classList.remove('active');
+    });
+
+    const targetSection = document.getElementById(`tab-${tabName}`);
+    if (targetSection) {
+      targetSection.classList.add('active');
+    }
+  },
+
+  /**
+   * Pulls base64 encoded user image strings from local storage vectors
+   * and updates all profile icons globally across active window sessions.
+   */
+  syncGlobalAvatar: function() {
+    const savedAvatar = localStorage.getItem("userProfileAvatar");
+    const navCircles = document.querySelectorAll(".nav-avatar-circle");
+    
+    if (savedAvatar && navCircles.length > 0) {
+      navCircles.forEach(circle => {
+        circle.innerHTML = `
+          <img 
+            src="${savedAvatar}" 
+            alt="User Profile Avatar" 
+            style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;" 
+          />`;
+      });
+    }
+  }
+};
+
+/**
+ * ─── LIFECYCLE DOM LISTENERS ────────────────────────────────
+ * Automatically kicks off interface structural updates as soon as 
+ * the DOM tree safely establishes connection parameters.
+ */
+document.addEventListener("DOMContentLoaded", () => {
+  // Sync profile avatar nodes instantly upon UI construction loads
+  UI.syncGlobalAvatar();
+});
 
   // ==========================================
   // MARKTREND AI — CLIPBOARD COPY MECHANICS
