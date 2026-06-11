@@ -22,6 +22,9 @@ const App = (() => {
   let selectedTrend   = null;
   let activeFilter    = "all";
 
+  // Auth state — simulated identity token
+  let _isAuthenticated = false;
+
   /* ════════════════════════════════════════
      NAVIGATION
   ════════════════════════════════════════ */
@@ -33,6 +36,54 @@ const App = (() => {
 
   function goHome() {
     UI.showPage("page-landing");
+  }
+
+  /* ════════════════════════════════════════
+     AUTH — Login / Sign-Up Gateway
+  ════════════════════════════════════════ */
+
+  /**
+   * Called by the Login button on the page-auth panel.
+   * Simulates credential validation, sets the auth token,
+   * and forwards the user to the main landing dashboard.
+   */
+  function login() {
+    _isAuthenticated = true;
+    UI.showPage("page-landing");
+  }
+
+  /**
+   * Called by the Sign-Up button on the page-auth panel.
+   * Simulates new identity registration, sets the auth token,
+   * and forwards the user directly to the main landing dashboard.
+   */
+  function signUp() {
+    _isAuthenticated = true;
+    UI.showPage("page-landing");
+  }
+
+  /**
+   * Switches the auth panel to the Login state (State B).
+   * Delegates visual transition (pill shift + form crossfade) to UI.
+   */
+  function showLogin() {
+    UI.switchAuthPanel("login");
+  }
+
+  /**
+   * Switches the auth panel to the Sign-Up state (State A).
+   * Delegates visual transition (pill shift + form crossfade) to UI.
+   */
+  function showSignUp() {
+    UI.switchAuthPanel("signup");
+  }
+
+  /**
+   * Returns whether a simulated auth token is currently set.
+   * Can be used by other modules to guard access.
+   */
+  function isAuthenticated() {
+    return _isAuthenticated;
   }
 
   /* ════════════════════════════════════════
@@ -165,7 +216,6 @@ const App = (() => {
   function init() {
     // Pre-score trends silently so app is instant when opened
     _runAnalysis(true);
-
   }
 
   // Auto-init on DOMContentLoaded
@@ -173,8 +223,18 @@ const App = (() => {
 
   /* Public API */
   return {
+    // Navigation
     openApp,
     goHome,
+
+    // Auth gateway
+    login,
+    signUp,
+    showLogin,
+    showSignUp,
+    isAuthenticated,
+
+    // Core features
     analyzeBrand,
     filterTrends,
     selectTrend,
