@@ -148,7 +148,7 @@
       border: 1px solid var(--glass-border);
       border-radius: var(--radius-panel);
       width: 100%;
-      max-width: 440px; /* Slightly wider layout to elegantly hold more fields */
+      max-width: 440px; 
       padding: 36px 32px 32px;
       box-shadow:
         0 8px 48px rgba(0,0,0,0.38),
@@ -229,7 +229,6 @@
     }
     .input-wrap input::placeholder { color: var(--placeholder); }
     
-    /* Dynamic adjustments for dark dropdown menus across browsers */
     .input-wrap select {
       cursor: pointer;
       appearance: none;
@@ -240,7 +239,6 @@
       color: var(--white);
     }
 
-    /* Custom UI calendar color inversion for browser picker modules */
     .input-wrap input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(1);
       opacity: 0.5;
@@ -581,7 +579,9 @@
           </p>
         </div>
 
-      </div></div></main>
+      </div>
+    </div>
+  </main>
 
   <div class="popup-overlay" id="popupOverlay">
     <div class="popup-modal" id="popupModal">
@@ -685,7 +685,7 @@
       }
     });
 
-    /* ─── VALIDATION FUNCTIONS ─── */
+    /* ─── VALIDATION & STORAGE FUNCTIONS ─── */
 
     function isValidEmail(email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -696,7 +696,7 @@
       return password.length >= 8;
     }
 
-    // Updated Sign Up validation reflecting ordered sequencing parameters
+    // UPDATED FUNCTION: Validates AND saves inputs to localStorage
     function validateSignup() {
       const name = document.getElementById('su-name').value.trim();
       const dob = document.getElementById('su-dob').value;
@@ -707,25 +707,31 @@
       const username = document.getElementById('su-username').value.trim();
       const password = document.getElementById('su-password').value;
 
-      // Check all explicit contextual profile fields filled out
       if (!name || !dob || !gender || !email || !business || !location || !username || !password) {
         showPopup('Insufficient Details', 'Please fill in all required operational workspace profile setup fields before continuing.');
         return;
       }
 
-      // Validate email format
       if (!isValidEmail(email)) {
         showPopup('Invalid Email', 'Please enter a valid global system email address layout target.');
         return;
       }
 
-      // Validate password length
       if (!isValidPassword(password)) {
         showPopup('Weak Password', 'Your authentication profile structural security key password must contain at least 8 characters.');
         return;
       }
 
-      // All variables correct - transition profile settings over to main dashboard system workspace
+      // ─── THE NEW PART: Save all inputs to localStorage ───
+      localStorage.setItem('saved_name', name);
+      localStorage.setItem('saved_dob', dob);
+      localStorage.setItem('saved_gender', gender);
+      localStorage.setItem('saved_email', email);
+      localStorage.setItem('saved_business', business);
+      localStorage.setItem('saved_location', location);
+      localStorage.setItem('saved_username', username);
+
+      // Everything passes, forward to the main dashboard workspace
       window.location.href = 'main.html';
     }
 
