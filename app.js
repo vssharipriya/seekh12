@@ -147,7 +147,7 @@ const App = (() => {
     _renderTrends();
   }
 
-  function _renderTrends() {
+  _renderTrends = function() {
     // Separate risky trends
     const goodTrends  = allScoredTrends.filter(t => !(t.risk === "High" && t.matchScore < 80));
     const riskyTrends = allScoredTrends.filter(t =>   t.risk === "High" && t.matchScore < 80);
@@ -191,18 +191,86 @@ const App = (() => {
     const contentType   = document.getElementById("content-type")?.value  || "Viral Hook";
     const platform      = document.getElementById("studio-platform")?.value || "Instagram";
     const toneOverride  = document.getElementById("tone-override")?.value  || "auto";
+    const useGroq       = document.getElementById("use-groq")?.checked;
     const effectiveTone = toneOverride === "auto" ? brand.tone : toneOverride;
 
     UI.setGenLoading(true);
     UI.showGeneratingShimmer();
 
-    // Local template path only
-    await _delay(600);
-    const campaign = CampaignEngine.generate(brand, selectedTrend, contentType, platform, toneOverride);
-    const isAI = false;
+    let campaign;
+    let isAI = false;
 
-    UI.setGenLoading(false);
-    UI.renderCampaignOutput(campaign, contentType, platform, brand, selectedTrend, isAI);
+    try {
+      if (useGroq) {
+        // ── Groq AI Engine Pipeline ──
+        if (!GroqAI.hasKey()) {
+          UI.setGenLoading(false);
+          UI.renderOutputError(
+            "No Groq API key found. Please enter and save your key in the Brand Setup panel configuration tab."
+          );
+          return;
+        }
+        campaign = await GroqAI.generateCampaign(brand, selectedTrend, contentType, platform, effectiveTone);
+        isAI = true;
+      } else {
+        // ── Local Template Engine Pipeline ──
+        await _delay(600);
+        campaign = CampaignEngine.generate(brand, selectedTrend, contentType, platform, toneOverride);
+        isAI = false;
+      }
+
+      if (!campaign) {
+        throw new Error("Engine returned an empty campaign payload.");
+      }
+
+      // Fallback structural safety values to avoid crashing UI render passes
+      campaign.hook = campaign.hook || "Discover the latest updates.";
+      campaign.caption = campaign.caption || "Elevating your daily lookbook seamlessly.";
+      campaign.visual = campaign.visual || "Clean composition layout framing.";
+
+      // Send to UI for final DOM paint
+      UI.setGenLoading(false);
+      UI.renderCampaignOutput(campaign, contentType, platform, brand, selectedTrend, isAI);
+
+      // ── Archive Persistence Hook Integration ──
+      try {
+        let bodyLayoutText = "";
+        if (campaign.hook) bodyLayoutText += `HOOK:\n${campaign.hook}\n\n`;
+        if (campaign.song) bodyLayoutText += `SUGGESTED AUDIO:\n🎵 ${campaign.song}\n\n`;
+        if (campaign.caption) bodyLayoutText += `CAPTION:\n${campaign.caption}\n\n`;
+        if (campaign.visual) bodyLayoutText += `VISUAL CONCEPT:\n${campaign.visual}\n\n`;
+        
+        if (campaign.hashtags && Array.isArray(campaign.hashtags)) {
+          bodyLayoutText += `HASHTAGS:\n${campaign.hashtags.join(" ")}\n\n`;
+        } else if (typeof campaign.hashtags === "string") {
+          bodyLayoutText += `HASHTAGS:\n${campaign.hashtags}\n\n`;
+        }
+
+        if (campaign.cta) bodyLayoutText += `CALL TO ACTION:\n${campaign.cta}\n\n`;
+        if (campaign.bestPostingTime) bodyLayoutText += `BEST POSTING TIME:\n📅 ${campaign.bestPostingTime}\n\n`;
+        if (campaign.memeTemplate) bodyLayoutText += `MEME TEMPLATE:\n${campaign.memeTemplate}`;
+
+        let archiveCategory = "Campaign";
+        if (contentType.toLowerCase().includes("script")) archiveCategory = "Reel Script";
+        if (contentType.toLowerCase().includes("post")) archiveCategory = "Marketing Post";
+
+        // Internal archival logger method trigger
+        if (typeof _archiveProjectEntry === "function") {
+          _archiveProjectEntry(
+            `${brand.name} — ${selectedTrend.name}`,
+            archiveCategory,
+            bodyLayoutText.trim()
+          );
+        }
+      } catch (archiveErr) {
+        console.warn("Background archival intercept paused safely:", archiveErr);
+      }
+
+    } catch (globalErr) {
+      console.error("Critical generator failure intercepted:", globalErr);
+      UI.setGenLoading(false);
+      UI.renderOutputError(GroqAI.errorMessage ? GroqAI.errorMessage(globalErr) : "Generation breakdown. Please verify key rules or check network connections.");
+    }
   }
 
   /* ── Utility: simple delay ── */
