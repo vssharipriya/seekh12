@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MarkTrend — Gateway</title>
+  <title>TrendLens — Gateway</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -81,11 +81,10 @@
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 3px;
     }
-    .brand span.mark { color: var(--lavender); }
-    .brand span.trend { color: var(--gold); }
-
+    .brand span.lens { color: var(--white); }
+    .brand span.trend { color: var(--white); }
     /* Pill tab switcher */
     .tab-bar {
       position: relative;
@@ -312,7 +311,6 @@
       backdrop-filter: blur(0);
       -webkit-backdrop-filter: blur(0);
       transition: background 0.32s ease, backdrop-filter 0.32s ease;
-      animation: fadeInBlur 0.4s ease forwards;
     }
     .popup-overlay.active {
       display: flex;
@@ -321,11 +319,6 @@
       background: rgba(0, 0, 0, 0.45);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-    }
-
-    @keyframes fadeInBlur {
-      from { background: rgba(0, 0, 0, 0); backdrop-filter: blur(0); }
-      to { background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(8px); }
     }
 
     .popup-modal {
@@ -341,23 +334,18 @@
         0 12px 56px rgba(0, 0, 0, 0.48),
         0 1px 0 rgba(255, 255, 255, 0.08) inset,
         0 0 0 1px rgba(184, 169, 245, 0.15) inset;
-      animation: popupScaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       opacity: 0;
       transform: scale(0.85);
+      transition: opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-
-    @keyframes popupScaleIn {
-      from { opacity: 0; transform: scale(0.85); }
-      to { opacity: 1; transform: scale(1); }
+    .popup-overlay.active .popup-modal {
+      opacity: 1;
+      transform: scale(1);
     }
 
     .popup-modal.closing {
-      animation: popupScaleOut 0.32s cubic-bezier(0.36, 0, 0.66, -0.56) forwards;
-    }
-
-    @keyframes popupScaleOut {
-      from { opacity: 1; transform: scale(1); }
-      to { opacity: 0; transform: scale(0.85); }
+      opacity: 0;
+      transform: scale(0.85);
     }
 
     .popup-header {
@@ -416,7 +404,7 @@
 
   <header>
     <a href="index.html" class="brand">
-      <span class="mark">Mark</span><span class="trend">Trend</span>
+      <span class="lens">Trend</span><span class="trend">Lens</span>
     </a>
 
     <div class="tab-bar" id="tabBar">
@@ -686,17 +674,16 @@
     });
 
     /* ─── VALIDATION & STORAGE FUNCTIONS ─── */
-
     function isValidEmail(email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return emailRegex.test(email);
     }
 
+    /* Password restriction helper */
     function isValidPassword(password) {
       return password.length >= 8;
     }
 
-    // UPDATED FUNCTION: Validates AND saves inputs to localStorage
     function validateSignup() {
       const name = document.getElementById('su-name').value.trim();
       const dob = document.getElementById('su-dob').value;
@@ -713,16 +700,16 @@
       }
 
       if (!isValidEmail(email)) {
-        showPopup('Invalid Email', 'Please enter a valid global system email address layout target.');
+        showPopup('Invalid Email', 'Please enter a valid global system email address.');
         return;
       }
 
       if (!isValidPassword(password)) {
-        showPopup('Weak Password', 'Your authentication profile structural security key password must contain at least 8 characters.');
+        showPopup('Weak Password', 'Your authentication password must contain at least 8 characters.');
         return;
       }
 
-      // ─── THE NEW PART: Save all inputs to localStorage ───
+      // Save credentials to localized memory frame safely
       localStorage.setItem('saved_name', name);
       localStorage.setItem('saved_dob', dob);
       localStorage.setItem('saved_gender', gender);
@@ -731,11 +718,9 @@
       localStorage.setItem('saved_location', location);
       localStorage.setItem('saved_username', username);
 
-      // Everything passes, forward to the main dashboard workspace
       window.location.href = 'main.html';
     }
 
-    // Login validation
     function validateLogin() {
       const username = document.getElementById('li-username').value.trim();
       const password = document.getElementById('li-password').value;
@@ -748,8 +733,20 @@
       window.location.href = 'main.html';
     }
 
-    /* ─── INIT PILL POSITION after layout ─── */
-    window.addEventListener('load', () => positionPill(btnSignup));
+    /* ─── INIT PILL POSITION after layout & HANDLE INCOMING VIEW ─── */
+    window.addEventListener('load', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedView = urlParams.get('view');
+
+  if (requestedView === 'login') {
+    // This tells your existing switcher function to open the login panel
+    switchTo('login');
+  } else {
+    // This runs whatever your default setup was (e.g., highlighting signup)
+    positionPill(btnSignup);
+  }
+});
+
     window.addEventListener('resize', () => {
       positionPill(currentState === 'login' ? btnLogin : btnSignup);
     });
