@@ -10,13 +10,23 @@ const GroqAI = (() => {
   const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
   const MODEL        = "llama-3.3-70b-versatile";
   const MAX_TOKENS   = 900;
-const GROQ_API_KEY = "";
+  const GROQ_API_KEY = "";
 
   /* ── Internal: get hardcoded API key ── */
   function getKey() {
     return GROQ_API_KEY;
   }
 
+  /* ── Save key (called from UI) ── */
+  function saveKey(key) {
+    const k = key.trim();
+    if (!k) return { ok: false, msg: "Key cannot be empty." };
+    if (!k.startsWith("gsk_")) return { ok: false, msg: "Groq keys start with gsk_. Please check your key." };
+    sessionStorage.setItem("trendidea_groq_key", k);
+    return { ok: true, msg: "Key saved for this session." };
+  }
+
+  /* ── Check if key exists ── */
   function hasKey() {
     return !!getKey();
   }
