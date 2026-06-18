@@ -2,12 +2,13 @@
    js/campaign.js
    Dynamic Campaign Engine — Eliminates hardcoded templates
    by running algorithmic, trend-aware content matrices.
+   Isolated content pools eliminate repetitive generation passes.
    Exposes global CampaignEngine object consumed by app.js.
 ═══════════════════════════════════════════════════════ */
 
 const CampaignEngine = (() => {
 
-  // ── CONSTANT CONFIGURATION MATRICES FOR MAXIMUM VARIATION ──
+  // ── 1. GLOBAL COMPONENTS POOL ──
   const HOOKS_POOL = [
     "GET READY!",
     "This changes everything.",
@@ -20,31 +21,6 @@ const CampaignEngine = (() => {
     "This is your sign to pay attention.",
     "Everything is moving to this right now."
   ];
-
-  const AUDIO_MAP = {
-    "Instagram": [
-      "Trending Fashion Beat",
-      "Viral Aesthetic Sound",
-      "Slow Luxury Edit Audio",
-      "Minimalist Electronic Lo-Fi",
-      "High-Fashion Runway Instrumental"
-    ],
-    "TikTok": [
-      "Trending TikTok Sound",
-      "Viral Remix",
-      "Emotional Storytelling Audio",
-      "Hyperpop Transition Track",
-      "Upbeat Pitch-Shifted Synth"
-    ],
-    "YouTube Shorts": [
-      "Cinematic Background Beat",
-      "Fast-Paced Trend Sound",
-      "Modern Tech Punchy Instrumental",
-      "Lo-Fi Chill Hop Drum Groove"
-    ],
-    "X (Twitter)": ["None — Text Post Native"],
-    "LinkedIn": ["Corporate Contemporary Ambient", "Upbeat Acoustic Rhythm Loop"]
-  };
 
   const POSTING_TIMES = {
     "Instagram": "3-5 PM EST on weekdays",
@@ -76,7 +52,66 @@ const CampaignEngine = (() => {
     "Share this with a friend who needs it."
   ];
 
-  // Helper function to extract a completely random element from an array
+  const MEME_POOL = [
+    "Distracted Boyfriend", 
+    "Expanding Brain", 
+    "Drake Hotline Bling", 
+    "Two Buttons Option", 
+    "Gigachad Grid Frame",
+    "Unpopular Opinion Matrix",
+    "Arthur Fist Punch-in"
+  ];
+
+  // ── 2. ISOLATED CONTENT GENERATION POOLS ──
+  const VIRAL_HOOK_POOL = {
+    openers: [
+      "POV: Realizing this layout layer is taking over feeds.",
+      "Stop what you're doing. Workflows are shifting fast.",
+      "Unpopular opinion: The old framework is broken.",
+      "This is your sign to rethink your approach.",
+      "No one expected this exact setup to speed up."
+    ],
+    bodies: [
+      "High energy, clear focus, and zero fluff.",
+      "It changes the conversation entirely.",
+      "Cuts out hours of manual over-processing.",
+      "A complete macro paradigm flip."
+    ]
+  };
+
+  const SCRIPT_POOL = {
+    setups: [
+      "[Speaker Action: Fast cut to camera] What creators miss analyzing these signals.",
+      "[Delivery: Conversational] Look at the numbers driving the space right now.",
+      "[Speaker Action: Screen recording overlay] Standard workflows aren't cutting it.",
+      "[Delivery: Confident insider tone] The exact layout we're executing behind the scenes."
+    ],
+    dialogues: [
+      "Strip away noise and inject structural frameworks.",
+      "Teams are over-complicating this execution layer.",
+      "Notice the subtle shift toward product transparency."
+    ]
+  };
+
+  const EDUCATIONAL_POOL = {
+    openers: [
+      "Quietly monitoring how things are shifting across the market.",
+      "Recent macro intelligence reveals a structural transition.",
+      "Standard operational approaches aren't delivering baseline value.",
+      "Trying to scale output? This breakdown is your wake-up call."
+    ],
+    breakdowns: [
+      "It requires modular separation and continuous platform alignment.",
+      "Address two key parameters: systemic execution and data loops.",
+      "It boils down to balancing strategic metrics with minimalism."
+    ],
+    closers: [
+      "This philosophy marks our newest milestone. Thoughts?",
+      "Pioneering tailored strategies that align with this layer.",
+      "A permanent evolution in behavior patterns across the ecosystem."
+    ]
+  };
+
   function _getRandom(arr) {
     if (!arr || !arr.length) return "";
     return arr[Math.floor(Math.random() * arr.length)];
@@ -89,59 +124,114 @@ const CampaignEngine = (() => {
    * @param {string} contentType 
    * @param {string} platform 
    * @param {string} toneOverride 
+   * @param {string} [ACCESS_TOKEN] - Authorization identity token for API integration
    * @returns {Object} Structured Campaign Payload
    */
-  function generate(brand, trend, contentType, platform, toneOverride) {
+  async function generate(brand, trend, contentType, platform, toneOverride, ACCESS_TOKEN) {
     const effectiveTone = toneOverride === "auto" ? brand.tone : toneOverride;
-    
-    // 1. Dynamic Audio & Posting Time Selection
-    const platformAudioList = AUDIO_MAP[platform] || AUDIO_MAP["Instagram"];
-    const selectedAudio = _getRandom(platformAudioList);
+
     const selectedBestTime = POSTING_TIMES[platform] || "12:00 PM EST";
+    const selectedMeme = _getRandom(MEME_POOL);
+    const selectedHook = _getRandom(HOOKS_POOL);
 
-    // 2. Procedural Hook Generation (Strictly isolated from Brand Name)
-    let selectedHook = _getRandom(HOOKS_POOL);
-    
-    // 3. Context-Aware Caption Matrices (Injecting Trend & Brand Data Dynamically)
     const primaryTrendTag = (trend.tags && trend.tags[0]) ? trend.tags[0] : "Innovation";
-    
-    const platformCaptions = {
-      "Instagram": [
-        `We've been quietly watching the ${trend.name} shift evolve — and it's finally time to talk about it.\n\nAs ${brand.name}, we aren't just following this shift. We're defining it. This new era of design is here and our core community is entirely ready for the change.\n\nStrong aesthetic appeal aligns perfectly with visual-first premium branding layouts.`,
-        `The landscape is changing rapidly. With the rise of ${trend.name}, traditional approaches are falling behind.\n\nAt ${brand.name}, we are embedding these live signals directly into our daily philosophy. Designed specifically for our dedicated ${brand.audience || "audience"}, this marks a new milestone in quality.`
-      ],
-      "TikTok": [
-        `POV: Realizing the ${trend.name} wave is completely taking over your feed right now. 🤯\n\n${brand.name} just dropped the ultimate response to this movement. High energy, zero filler. Hit that plus sign for more breakdowns!`,
-        `No one expected this specific ${primaryTrendTag} aesthetic to scale so fast. ${brand.name} is officially jumping in to show you exactly how to style it. Let us know your thoughts below!`
-      ],
-      "LinkedIn": [
-        `The market intelligence indicators behind the current ${trend.name} movement demonstrate a permanent shift in consumer behavior patterns.\n\nAt ${brand.name}, we are actively tracking these metrics to optimize workflows for our core target demographic. This development underscores a broader industry transition toward systemic transparency.`,
-        `Strategic analysis of the latest ${primaryTrendTag} data reveals a significant market gap. ${brand.name} is proud to pioneering tailored solutions that align seamlessly with this emerging macro trend.`
-      ],
-      "YouTube Shorts": [
-        `This is exactly why the ${trend.name} trend is completely changing short-form content scaling rules.\n\nWatch how ${brand.name} breaks down the production workflow variables behind this insight step-by-step. Stick around until the final second to see the conversion metrics layout!`,
-        `The data doesn't lie: ${trend.name} is generating 40% more engagement across the ${brand.industry} market. Here is how ${brand.name} is applying it seamlessly right now.`
-      ]
-    };
 
-    // Fallback to Instagram captions if platform specific array is missing
-    const targetCaptions = platformCaptions[platform] || platformCaptions["Instagram"];
-    const selectedCaption = _getRandom(targetCaptions);
+    // ── 🎵 REAL AUDIO RESOLVER ──
+    let selectedAudio = { name: "No track found", artist: "Unknown" };
 
-    // 4. Algorithmic Visual Concept Design
+    if (!ACCESS_TOKEN) {
+      console.warn("Spotify integration warning: ACCESS_TOKEN is missing or undefined.");
+    }
+
+    try {
+      if (!ACCESS_TOKEN) throw new Error("Missing Spotify token context.");
+
+      const query = `${trend.name || ""} ${brand.industry || ""} viral trending`;
+      const res = await fetch(
+        `http://googleusercontent.com/spotify.com/${encodeURIComponent(query)}&type=track&limit=5`,
+        { headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` } }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        const items = data?.tracks?.items || [];
+        let track = items.find(t => t?.name && t?.artists?.length) || null;
+
+        if (!track) {
+          const fallbackQuery = `${brand.industry} ${primaryTrendTag} mood`;
+          const retryRes = await fetch(
+            `http://googleusercontent.com/spotify.com/${encodeURIComponent(fallbackQuery)}&type=track&limit=5`,
+            { headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` } }
+          );
+          if (retryRes.ok) {
+            const retryData = await retryRes.json();
+            const retryItems = retryData?.tracks?.items || [];
+            track = retryItems.find(t => t?.name && t?.artists?.length) || null;
+          }
+        }
+
+        if (track) {
+          selectedAudio = { name: track.name, artist: track.artists?.[0]?.name || "Unknown" };
+        }
+      }
+    } catch (err) {
+      console.warn("Audio processing subsystem bypassed safely:", err.message);
+    }
+
+    // ── 🧠 CAPTION GENERATION (ULTRA-SHORT REWRITE) ──
+    let selectedCaption = "";
+
+    if (contentType === "Viral Hook") {
+      const opener = _getRandom(VIRAL_HOOK_POOL.openers);
+      const body = _getRandom(VIRAL_HOOK_POOL.bodies);
+      
+      // Step 1 Fix: Tight, seamless one-liner composition
+      selectedCaption = `${opener} — ${body}`;
+
+    } else if (contentType === "Script") {
+      const setup = _getRandom(SCRIPT_POOL.setups);
+      
+      // Step 2 Fix: Extracts only the raw spoken words, stripping dialogue delivery tags
+      selectedCaption = `${setup.split("]")[1]?.trim() || setup}`;
+
+    } else {
+      const opener = _getRandom(EDUCATIONAL_POOL.openers);
+      
+      // Step 3 Fix: Removes stacking structure entirely to keep the baseline clean
+      selectedCaption = `${opener}`;
+    }
+
+    // ── 🔥 CAPTION ENGINE SHORTENER & CHARACTER LIMIT ARCHITECTURE ──
+    // Step 4: Flatten any stray structural line breaks and capture the top active components
+    selectedCaption = selectedCaption
+      .split("\n")
+      .slice(0, 2)
+      .join(" ")
+      .trim();
+
+    // Step 5: Enforce strict 120 character threshold ceiling to match social media standards
+    selectedCaption = selectedCaption.length > 120
+      ? selectedCaption.slice(0, 117) + "..."
+      : selectedCaption;
+
+    // Dynamic variable syntax substitutions
+    selectedCaption = selectedCaption
+      .replace(/\[brand\.name\]/g, brand.name)
+      .replace(/\[brand\.industry\]/g, brand.industry)
+      .replace(/\[primaryTrendTag\]/g, primaryTrendTag);
+
+    // ── 4. Algorithmic Visual Concept Design ──
     let selectedVisual = "";
     if (effectiveTone.toLowerCase().includes("premium") || effectiveTone.toLowerCase().includes("minimal")) {
       selectedVisual = _getRandom(VISUALS_POOL.cinematic);
     } else {
       selectedVisual = _getRandom(VISUALS_POOL.authentic);
     }
-    
-    // Add context enrichment strings dynamically
-    selectedVisual += ` Content layout explicitly optimized for ${contentType} assets matching standard ${brand.industry} production protocols.`;
+    selectedVisual += ` Content layout explicitly optimized for ${contentType} assets matching standard ${brand.industry} production protocols on ${platform}.`;
 
-    // 5. Dynamic Variable Hashtag Compositions
+    // ── 5. Dynamic Variable Hashtag Compositions ──
     const cleanBrandHashtag = `#${brand.name.replace(/\s/g, "")}`;
-    const cleanTrendHashtag = `#${trend.name.replace(/\s/g, "")}`;
+    const cleanTrendHashtag = `#${trend.name ? trend.name.replace(/\s/g, "") : "Trend"}`;
     const cleanIndustryHashtag = `#${brand.industry.replace(/\s/g, "")}`;
     const cleanPlatformHashtag = `#${platform.replace(/[^a-zA-Z0-9]/g, "")}`;
     
@@ -157,28 +247,17 @@ const CampaignEngine = (() => {
       cleanPlatformHashtag
     ];
 
-    // 6. Targeted Call To Action
-    const selectedCta = _getRandom(CTA_POOL);
-
-    // 7. Meme Template Selection Pipeline
-    const memePool = ["Distracted Boyfriend", "Expanding Brain", "Drake Hotline Bling", "Two Buttons Option", "Gigachad Grid Frame"];
-    const selectedMeme = _getRandom(memePool);
-
-    // Return final structured production object matching UI engine requirements
     return {
       hook: selectedHook,
-      song: selectedAudio,
+      song: `${selectedAudio.name} — ${selectedAudio.artist}`,
       caption: selectedCaption,
       visual: selectedVisual,
       hashtags: generatedHashtags,
-      cta: selectedCta,
+      cta: _getRandom(CTA_POOL),
       bestPostingTime: selectedBestTime,
-      memeTemplate: selectedMeme
+      memeTemplate: _getRandom(MEME_POOL)
     };
   }
 
-  return {
-    generate
-  };
-
+  return { generate };
 })();
