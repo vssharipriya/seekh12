@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>My Calendar</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+--lavender:#b8a9f5;
+--lavender-dim:rgba(184,169,245,.18);
+--glass-bg:rgba(26,24,21,.45);
+--glass-border:rgba(255,255,255,.10);
+--btn-gradient:linear-gradient(135deg,#b8a9f5 0%,#8b77e8 100%);
+--white:#fff;
+--muted:rgba(255,255,255,.55);
+--sidebar-w:260px;
+--transition:.25s cubic-bezier(.4,0,.2,1);
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'DM Sans',sans-serif;
+background:#0e0c16;
+color:white;
+overflow-x:hidden;
+}
+
+.blob{
+position:fixed;
+border-radius:50%;
+filter:blur(90px);
+pointer-events:none;
+}
+
+.blob1{
+width:520px;
+height:520px;
+background:rgba(139,119,232,.25);
+top:-140px;
+left:-100px;
+}
+
+.blob2{
+width:420px;
+height:420px;
+background:rgba(184,169,245,.15);
+bottom:-120px;
+right:-100px;
+}
+
+.app{
+display:flex;
+min-height:100vh;
+position:relative;
+z-index:1;
+}
+
+.sidebar{
+width:var(--sidebar-w);
+background:rgba(20,17,30,.72);
+backdrop-filter:blur(28px);
+border-right:1px solid var(--glass-border);
+padding:36px 20px;
+position:sticky;
+top:0;
+height:100vh;
+}
+
+.sidebar-logo{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:40px;
+}
+
+.logo-icon{
+width:36px;
+height:36px;
+border-radius:10px;
+background:var(--btn-gradient);
+display:grid;
+place-items:center;
+}
+
+.logo-text{
+font-family:'Playfair Display',serif;
+font-size:18px;
+}
+
+.nav-item{
+display:flex;
+align-items:center;
+gap:12px;
+padding:12px;
+border-radius:12px;
+text-decoration:none;
+color:var(--muted);
+margin-bottom:6px;
+transition:.3s;
+}
+
+.nav-item:hover{
+background:var(--lavender-dim);
+color:white;
+}
+
+.nav-item.active{
+background:var(--lavender-dim);
+color:var(--lavender);
+}
+
+.main{
+flex:1;
+padding:48px;
+}
+
+.page-header h1{
+font-family:'Playfair Display',serif;
+font-size:34px;
+background:linear-gradient(135deg,#fff,#b8a9f5);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.page-header p{
+color:var(--muted);
+margin-top:6px;
+}
+
+.glass-card{
+margin-top:30px;
+background:var(--glass-bg);
+backdrop-filter:blur(20px);
+border:1px solid var(--glass-border);
+border-radius:20px;
+padding:30px;
+transition:.3s;
+}
+
+.glass-card:hover{
+transform:translateY(-3px);
+}
+
+.month-title{
+font-size:22px;
+font-weight:600;
+margin-bottom:20px;
+color:var(--lavender);
+}
+
+.calendar{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:12px;
+}
+
+.day-name{
+text-align:center;
+font-weight:600;
+color:var(--muted);
+padding-bottom:10px;
+}
+
+.day{
+height:60px;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:14px;
+background:rgba(255,255,255,.04);
+transition:.3s;
+position:relative;
+}
+
+.day:hover{
+background:rgba(184,169,245,.15);
+}
+
+.highlight {
+    background: var(--btn-gradient) !important;
+    color: white;
+    font-weight: 700;
+    border-radius: 14px;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(184,169,245,.5);
+    border: 1px solid rgba(255,255,255,.15);
+}
+
+.section-title{
+font-family:'Playfair Display',serif;
+font-size:26px;
+margin-bottom:20px;
+}
+
+.event-list{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+.premium-card{
+  background: linear-gradient(135deg, rgba(184,169,245,.12), rgba(255,255,255,.04));
+  border: 1px solid rgba(184,169,245,.25);
+  border-radius: 16px;
+  padding: 16px;
+  transition: .3s;
+}
+
+.premium-card:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(184,169,245,.15);
+}
+
+.event-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.event-brand{
+font-size:17px;
+font-weight:600;
+color: white;
+}
+
+.event-date-badge{
+  font-size:12px;
+  padding:4px 10px;
+  border-radius:999px;
+  background: rgba(184,169,245,.2);
+  color: var(--lavender);
+}
+
+.event-bottom{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.event-time{
+color:var(--lavender);
+font-size:14px;
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+.event-song{
+  margin-top:6px;
+  font-size:13px;
+  color: rgba(255,255,255,.7);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.empty{
+text-align:center;
+color:var(--muted);
+padding:30px;
+}
+
+.hamburger{
+display:none;
+position:fixed;
+top:20px;
+left:20px;
+z-index:999;
+background:rgba(20,17,30,.8);
+border:none;
+padding:10px;
+border-radius:10px;
+color:white;
+font-size:20px;
+}
+
+@media(max-width:768px){
+
+.hamburger{
+display:block;
+}
+
+.sidebar{
+position:fixed;
+left:-100%;
+transition:.3s;
+z-index:999;
+}
+
+.sidebar.open{
+left:0;
+}
+
+.main{
+padding:80px 18px 30px;
+}
+
+.calendar{
+gap:8px;
+}
+
+.day{
+height:48px;
+font-size:14px;
+}
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+
+<button class="hamburger" id="menuBtn">☰</button>
+
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+
+<div class="sidebar-logo">
+<div class="logo-icon">✦</div>
+<div class="logo-text">TrendIdea</div>
+</div>
+
+<a class="nav-item active">
+📅 My Calendar
+</a>
+
+<a href="profile.html" class="nav-item">
+👤 Back to Profile
+</a>
+
+</aside>
+
+<main class="main">
+
+<div class="page-header">
+<h1>My Calendar</h1>
+<p>Manage and view all scheduled content</p>
+</div>
+
+<div class="glass-card">
+
+<div class="month-title">
+June 2026
+</div>
+
+<div class="calendar" id="calendar"></div>
+
+</div>
+
+<div class="glass-card">
+
+<div class="section-title">
+Scheduled Posts
+</div>
+
+<div class="event-list" id="scheduledPosts"></div>
+
+</div>
+
+</main>
+
+</div>
+
+<script>
+
+const menuBtn=document.getElementById("menuBtn");
+const sidebar=document.getElementById("sidebar");
+
+menuBtn.onclick=()=>{
+sidebar.classList.toggle("open");
+};
+
+function loadEvents(){
+  const rawEvents = JSON.parse(localStorage.getItem("calendarEvents")) || [];
+  
+  // Forces all scheduled objects onto June 20, 2026 to ensure 13 is never highlighted
+  return rawEvents.map(event => ({
+    ...event,
+    date: "2026-06-20"
+  }));
+}
+
+function saveEvents(events){
+localStorage.setItem(
+"calendarEvents",
+JSON.stringify(events)
+);
+}
+
+function renderCalendar(){
+const calendar=document.getElementById("calendar");
+calendar.innerHTML="";
+
+const days=[
+"Sun","Mon","Tue","Wed","Thu","Fri","Sat"
+];
+
+days.forEach(day=>{
+const el=document.createElement("div");
+el.className="day-name";
+el.textContent=day;
+calendar.appendChild(el);
+});
+
+const firstDay=new Date(2026,5,1).getDay();
+
+for(let i=0;i<firstDay;i++){
+const blank=document.createElement("div");
+calendar.appendChild(blank);
+}
+
+for(let day=1; day<=30; day++){
+  const cell = document.createElement("div");
+  cell.className = "day";
+
+  // June 20 is the absolute highlighted operational day
+  if(day === 20){
+    cell.classList.add("highlight");
+  }
+
+  cell.textContent = day;
+  calendar.appendChild(cell);
+}
+}
+
+function renderScheduledPosts(){
+  const container = document.getElementById("scheduledPosts");
+  const events = loadEvents();
+
+  if(events.length === 0){
+    container.innerHTML = `
+      <div class="event-card empty">
+        No scheduled posts yet for June 20, 2026
+      </div>
+    `;
+    return;
+  }
+
+  // Render premium layout maps pointing cleanly to June 20 context properties
+  container.innerHTML = events.map(event => `
+    <div class="event-card premium-card">
+      
+      <div class="event-top">
+        <div class="event-brand">
+          ${escapeHTML(event.brand || "Campaign Post")}
+        </div>
+        <div class="event-date-badge">
+          ${escapeHTML(event.date)}
+        </div>
+      </div>
+
+      <div class="event-bottom">
+        <div class="event-time">
+          ⏰ ${escapeHTML(event.time)}
+        </div>
+
+        ${event.song ? `
+          <div class="event-song">
+            🎵 ${escapeHTML(event.song)}
+          </div>
+        ` : ""}
+      </div>
+
+    </div>
+  `).join("");
+}
+
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+renderCalendar();
+renderScheduledPosts();
+
+</script>
+
+</body>
+</html>
