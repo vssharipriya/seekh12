@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TrendLens — Gateway</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&family=Sora:wght=400;600;700&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -679,7 +679,6 @@
       return emailRegex.test(email);
     }
 
-    /* Password restriction helper */
     function isValidPassword(password) {
       return password.length >= 8;
     }
@@ -717,35 +716,51 @@
       localStorage.setItem('saved_business', business);
       localStorage.setItem('saved_location', location);
       localStorage.setItem('saved_username', username);
+      localStorage.setItem('saved_password', password); // Explicit database password bind
 
       window.location.href = 'main.html';
     }
 
     function validateLogin() {
-      const username = document.getElementById('li-username').value.trim();
-      const password = document.getElementById('li-password').value;
+      const usernameInput = document.getElementById('li-username').value.trim();
+      const passwordInput = document.getElementById('li-password').value;
 
-      if (!username || !password) {
+      if (!usernameInput || !passwordInput) {
         showPopup('Insufficient Details', 'Please fill in all required fields before continuing.');
         return;
       }
 
+      // Strict matching against stored browser dataset
+      const storedUsername = localStorage.getItem('saved_username');
+      const storedPassword = localStorage.getItem('saved_password');
+
+      // 1. Check if username profile mapping exists inside local storage sandbox
+      if (usernameInput !== storedUsername) {
+        showPopup('Incorrect Username', 'The username signature map entered does not exist or matches nothing in our records.');
+        return;
+      }
+
+      // 2. Map evaluation map checks against the existing profile user instance's assigned password string matrix
+      if (passwordInput !== storedPassword) {
+        showPopup('Incorrect Password', 'The credentials verification security sequence string does not align with your registered data profile.');
+        return;
+      }
+
+      // Success conditional state entry gate pass
       window.location.href = 'main.html';
     }
 
     /* ─── INIT PILL POSITION after layout & HANDLE INCOMING VIEW ─── */
     window.addEventListener('load', () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const requestedView = urlParams.get('view');
+      const urlParams = new URLSearchParams(window.location.search);
+      const requestedView = urlParams.get('view');
 
-  if (requestedView === 'login') {
-    // This tells your existing switcher function to open the login panel
-    switchTo('login');
-  } else {
-    // This runs whatever your default setup was (e.g., highlighting signup)
-    positionPill(btnSignup);
-  }
-});
+      if (requestedView === 'login') {
+        switchTo('login');
+      } else {
+        positionPill(btnSignup);
+      }
+    });
 
     window.addEventListener('resize', () => {
       positionPill(currentState === 'login' ? btnLogin : btnSignup);
