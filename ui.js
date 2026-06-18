@@ -9,21 +9,42 @@ const UI = (() => {
   /* ── Page / Tab navigation ── */
   function showPage(id) {
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
+    const targetPage = document.getElementById(id);
+    if (targetPage) targetPage.classList.add("active");
     window.scrollTo(0, 0);
   }
 
   function switchTab(name, btn) {
+    // 1. Remove active state from all application navigation tabs
+    document.querySelectorAll(".tab-trigger, .app-tab").forEach(b => b.classList.remove("active"));
+    
+    // 2. Hide all app view content block sections
     document.querySelectorAll(".app-section").forEach(s => s.classList.remove("active"));
-    document.querySelectorAll(".app-tab").forEach(b => b.classList.remove("active"));
-    document.getElementById("tab-" + name).classList.add("active");
-    if (btn) btn.classList.add("active");
+    
+    // 3. Set selected workspace section to active
+    const targetSection = document.getElementById("tab-" + name);
+    if (targetSection) targetSection.classList.add("active");
+    
+    // 4. Update tab styling indicator
+    if (btn) {
+      btn.classList.add("active");
+    } else {
+      const matchingTab = document.querySelector(`[data-tab="${name}"]`);
+      if (matchingTab) matchingTab.classList.add("active");
+    }
     window.scrollTo(0, 0);
   }
 
   function scrollTo(id) {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    if (!el) return;
+
+    // Account for fixed top nav height so heading isn't hidden
+    const nav = document.querySelector('.nav') || document.querySelector('.top-nav') || null;
+    const navHeight = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
+    const extraOffset = 12; // small breathing room
+    const top = el.getBoundingClientRect().top + window.pageYOffset - navHeight - extraOffset;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
   }
 
   /* ── API Key UI ── */
@@ -33,10 +54,10 @@ const UI = (() => {
     if (!input) return;
     if (input.type === "password") {
       input.type = "text";
-      btn.textContent = "Hide";
+      if (btn) btn.textContent = "Hide";
     } else {
       input.type = "password";
-      btn.textContent = "Show";
+      if (btn) btn.textContent = "Show";
     }
   }
 
@@ -44,7 +65,7 @@ const UI = (() => {
     const el = document.getElementById("api-key-status");
     if (!el) return;
     el.textContent = msg;
-    el.className = "api-key-status " + type;
+    el.className = "api-status-msg " + type;
   }
 
   function prefillApiKeyInput(key) {
@@ -87,6 +108,9 @@ const UI = (() => {
     const stageClass  = "stage-" + t.stage.toLowerCase();
     const riskClass   = "risk-" + t.risk.toLowerCase();
 
+    // Base64 encode the trend object to completely eliminate quote breakdown syntax anomalies
+    const safeEncodedTrend = btoa(encodeURIComponent(JSON.stringify(t)));
+
     return `
       <div class="trend-card ${isSelected ? "selected" : ""}" id="tcard-${slugify(t.name)}">
         <div class="trend-top">
@@ -110,7 +134,7 @@ const UI = (() => {
             <span><span class="risk-dot ${riskClass}"></span>${t.risk} Risk</span>
           </div>
           <button class="btn-select-trend ${isSelected ? "active" : ""}"
-                  onclick="App.selectTrend(${JSON.stringify(t).replace(/"/g, "&quot;")})">
+                  onclick="App.selectTrend(JSON.parse(decodeURIComponent(atob('${safeEncodedTrend}'))))">
             ${isSelected ? "✓ Selected" : "Use Trend →"}
           </button>
         </div>
@@ -195,17 +219,20 @@ const UI = (() => {
 
   /* ── Shimmer skeleton while generating ── */
   function showGeneratingShimmer() {
-    document.getElementById("output-area").innerHTML = `
-      <div class="output-card">
-        <div class="output-body">
-          <div class="shimmer-box" style="height:24px;width:55%;margin-bottom:1.5rem"></div>
-          <div class="shimmer-box" style="height:14px;width:100%;margin-bottom:8px"></div>
-          <div class="shimmer-box" style="height:14px;width:88%;margin-bottom:8px"></div>
-          <div class="shimmer-box" style="height:14px;width:76%;margin-bottom:1.5rem"></div>
-          <div class="shimmer-box" style="height:58px;width:100%;margin-bottom:1.25rem"></div>
-          <div class="shimmer-box" style="height:14px;width:60%"></div>
-        </div>
-      </div>`;
+    const out = document.getElementById("output-area");
+    if (out) {
+      out.innerHTML = `
+        <div class="output-card">
+          <div class="output-body">
+            <div class="shimmer-box" style="height:24px;width:55%;margin-bottom:1.5rem"></div>
+            <div class="shimmer-box" style="height:14px;width:100%;margin-bottom:8px"></div>
+            <div class="shimmer-box" style="height:14px;width:88%;margin-bottom:8px"></div>
+            <div class="shimmer-box" style="height:14px;width:76%;margin-bottom:1.5rem"></div>
+            <div class="shimmer-box" style="height:58px;width:100%;margin-bottom:1.25rem"></div>
+            <div class="shimmer-box" style="height:14px;width:60%"></div>
+          </div>
+        </div>`;
+    }
   }
 
   /* ── Render campaign output ── */
@@ -213,14 +240,25 @@ const UI = (() => {
     const initials = brand.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
     const previewCaption = campaign.caption ? campaign.caption.split("\n")[0].split(".")[0] : "";
 
-    // Aesthetic rounded rectangle button token
+    // Array fallback verification setup
+    const safeHashtags = Array.isArray(campaign.hashtags) ? campaign.hashtags : [];
+
     const copyButtonHtml = `
       <button class="btn-copy" style="border-radius: 6px; padding: 4px 12px; font-family: inherit; font-size: 11px; font-weight: 500; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; border: 1px solid var(--border, #e2e8f0); background: transparent; transition: all 0.2s ease;">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         <span>Copy</span>
       </button>`;
 
-    document.getElementById("output-area").innerHTML = `
+    const calendarButtonHtml = `
+      <button class="btn-to-calendar" style="border-radius: 6px; padding: 4px 12px; font-family: inherit; font-size: 11px; font-weight: 500; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; border: 1px solid var(--border, #e2e8f0); background: transparent; transition: all 0.2s ease;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <span>Add to Calendar</span>
+      </button>`;
+
+    const outArea = document.getElementById("output-area");
+    if (!outArea) return;
+
+    outArea.innerHTML = `
       <div class="output-card">
         <div class="output-header">
           <div class="output-header-title">
@@ -235,7 +273,7 @@ const UI = (() => {
               <div class="output-block-label" style="margin: 0;">Hook</div>
               ${copyButtonHtml}
             </div>
-            <div class="output-hook txt-target">${escHtml(campaign.hook)}</div>
+            <div class="output-hook txt-target">${escHtml(campaign.hook || "")}</div>
           </div>
 
           <div class="output-block">
@@ -245,7 +283,7 @@ const UI = (() => {
             </div>
             <div class="output-audio txt-target" style="font-family: 'SF Pro Mono', 'Courier New', monospace; font-size: 13px; font-weight: 600; color: var(--accent, #3b82f6); display: inline-flex; align-items: center; gap: 6px; letter-spacing: -0.2px;">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.8;"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-              ${escHtml(campaign.song || "Trending Track")}
+              ${escHtml(campaign.song || "Original Audio")}
             </div>
           </div>
 
@@ -254,7 +292,7 @@ const UI = (() => {
               <div class="output-block-label" style="margin: 0;">Caption</div>
               ${copyButtonHtml}
             </div>
-            <div class="output-caption txt-target">${escHtml(campaign.caption)}</div>
+            <div class="output-caption txt-target">${escHtml(campaign.caption || "")}</div>
           </div>
 
           <div class="output-block">
@@ -262,7 +300,7 @@ const UI = (() => {
               <div class="output-block-label" style="margin: 0;">Visual Concept</div>
               ${copyButtonHtml}
             </div>
-            <div class="output-visual txt-target">${escHtml(campaign.visual)}</div>
+            <div class="output-visual txt-target">${escHtml(campaign.visual || "")}</div>
           </div>
 
           <div class="output-block">
@@ -270,7 +308,7 @@ const UI = (() => {
               <div class="output-block-label" style="margin: 0;">Hashtags</div>
               ${copyButtonHtml}
             </div>
-            <div class="hashtag-row txt-target">${campaign.hashtags.map(h => `<span class="hashtag">${escHtml(h)}</span>`).join(" ")}</div>
+            <div class="hashtag-row txt-target">${safeHashtags.map(h => `<span class="hashtag">${escHtml(h)}</span>`).join(" ")}</div>
           </div>
 
           <div class="output-block">
@@ -278,15 +316,18 @@ const UI = (() => {
               <div class="output-block-label" style="margin: 0;">Call to Action</div>
               ${copyButtonHtml}
             </div>
-            <div class="output-cta txt-target">${escHtml(campaign.cta)}</div>
+            <div class="output-cta txt-target">${escHtml(campaign.cta || "")}</div>
           </div>
 
           <div class="output-block">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
               <div class="output-block-label" style="margin: 0;">Best Posting Time</div>
-              ${copyButtonHtml}
+              <div style="display: flex; gap: 6px;">
+                ${copyButtonHtml}
+                ${calendarButtonHtml}
+              </div>
             </div>
-            <div class="output-best-posting-time txt-target">${escHtml(campaign.bestPostingTime)}</div>
+            <div class="output-best-posting-time txt-target">${escHtml(campaign.bestPostingTime || "6 PM – 9 PM")}</div>
           </div>
 
           <div class="output-block">
@@ -294,7 +335,7 @@ const UI = (() => {
               <div class="output-block-label" style="margin: 0;">Meme Template</div>
               ${copyButtonHtml}
             </div>
-            <div class="output-meme-template txt-target">${escHtml(campaign.memeTemplate)}</div>
+            <div class="output-meme-template txt-target">${escHtml(campaign.memeTemplate || "POV Template")}</div>
           </div>
 
         </div>
@@ -318,7 +359,7 @@ const UI = (() => {
         <div class="preview-body">
           <div class="preview-caption-text">
             <strong>${escHtml(brand.name)}</strong> ${escHtml(previewCaption)}.<br>
-            <span style="color:var(--text-light);font-size:12px">${campaign.hashtags ? campaign.hashtags.slice(0,3).join(" ") : ""}</span>
+            <span style="color:var(--text-light);font-size:12px">${safeHashtags.slice(0,3).join(" ")}</span>
           </div>
           <div class="preview-actions">
             <span class="preview-action">♡ 2.4k</span>
@@ -332,91 +373,30 @@ const UI = (() => {
 
   /* ── Render error in output area ── */
   function renderOutputError(msg) {
-    document.getElementById("output-area").innerHTML = `
-      <div class="error-box">
-        <strong>⚠️ Generation failed</strong><br>${escHtml(msg)}
-      </div>`;
+    const el = document.getElementById("output-area");
+    if (el) {
+      el.innerHTML = `
+        <div class="error-box">
+          <strong>⚠️ Generation failed</strong><br>${escHtml(msg)}
+        </div>`;
+    }
   }
 
   /* ── Empty state for studio ── */
   function renderStudioEmpty() {
-    document.getElementById("output-area").innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">📈</div>
-        <div class="empty-title">No trend selected</div>
-        <div class="empty-desc">Go to the Trends tab and click "Use Trend →" to select one, then come back here.</div>
-      </div>`;
+    const el = document.getElementById("output-area");
+    if (el) {
+      el.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📈</div>
+          <div class="empty-title">No trend selected</div>
+          <div class="empty-desc">Go to the Trends tab and click "Use Trend →" to select one, then come back here.</div>
+        </div>`;
+    }
   }
 
-  /* ── Utility: escape HTML ── */
-  function escHtml(str) {
-    if (typeof str !== "string") return str;
-    return str
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
-
-  /* ── Utility: slugify for IDs ── */
-  function slugify(str) {
-    return str.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-  }
-  /**
- * ═════════════════════════════════════════════════════════════
- * TrendIdea — UI & Layout Management Engine
- * ═════════════════════════════════════════════════════════════
- */
-
-const UI = {
-  /**
-   * Smoothly scrolls the viewport to a target section container
-   * @param {string} elementId - The ID of the target element
-   */
-  scrollTo: function(elementId) {
-    const target = document.getElementById(elementId);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      console.warn(`UI.scrollTo: Element with ID "${elementId}" not found.`);
-    }
-  },
-
-  /**
-   * Controls tab switching mechanics within the core application workspace workspace
-   * @param {string} tabName - The data-tab identifier ('brand', 'trends', 'studio')
-   * @param {HTMLElement} element - The button element that triggered the event
-   */
-  switchTab: function(tabName, element) {
-    // 1. Remove active highlight state from all application navigation tabs
-    document.querySelectorAll('.app-tab').forEach(tab => {
-      tab.classList.remove('active');
-    });
-
-    // 2. Add active highlight state to the current clicked tab control element
-    if (element) {
-      element.classList.add('active');
-    } else {
-      const matchingTab = document.querySelector(`.app-tab[data-tab="${tabName}"]`);
-      if (matchingTab) matchingTab.classList.add('active');
-    }
-
-    // 3. Toggle content visibility blocks matching the tab sections
-    document.querySelectorAll('.app-section').forEach(section => {
-      section.classList.remove('active');
-    });
-
-    const targetSection = document.getElementById(`tab-${tabName}`);
-    if (targetSection) {
-      targetSection.classList.add('active');
-    }
-  },
-
-  /**
-   * Pulls base64 encoded user image strings from local storage vectors
-   * and updates all profile icons globally across active window sessions.
-   */
-  syncGlobalAvatar: function() {
+  /* ── Pull profile avatars and sync globally ── */
+  function syncGlobalAvatar() {
     const savedAvatar = localStorage.getItem("userProfileAvatar");
     const navCircles = document.querySelectorAll(".nav-avatar-circle");
     
@@ -431,51 +411,22 @@ const UI = {
       });
     }
   }
-};
 
-/**
- * ─── LIFECYCLE DOM LISTENERS ────────────────────────────────
- * Automatically kicks off interface structural updates as soon as 
- * the DOM tree safely establishes connection parameters.
- */
-document.addEventListener("DOMContentLoaded", () => {
-  // Sync profile avatar nodes instantly upon UI construction loads
-  UI.syncGlobalAvatar();
-});
+  /* ── Utilities ── */
+  function escHtml(str) {
+    if (typeof str !== "string") return str;
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
 
-  // ==========================================
-  // MARKTREND AI — CLIPBOARD COPY MECHANICS
-  // ==========================================
-  document.addEventListener('click', async (event) => {
-    const copyBtn = event.target.closest('.btn-copy');
-    if (!copyBtn) return;
+  function slugify(str) {
+    return str.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  }
 
-    const parentBlock = copyBtn.closest('.output-block');
-    const textTarget = parentBlock ? parentBlock.querySelector('.txt-target') : null;
-
-    if (textTarget) {
-      // Strips internal SVG/HTML tag artifacts when copying the audio line text structure
-      const textToCopy = textTarget.innerText.trim();
-
-      try {
-        await navigator.clipboard.writeText(textToCopy);
-
-        const label = copyBtn.querySelector('span');
-        if (label) {
-          label.textContent = 'Copied!';
-          copyBtn.style.borderColor = 'var(--accent, #3b82f6)';
-          
-          setTimeout(() => {
-            label.textContent = 'Copy';
-            copyBtn.style.borderColor = '';
-          }, 2000);
-        }
-      } catch (err) {
-        console.error('Failed to copy text: ', err);
-      }
-    }
-  });
-
+  /* Public Core API Interface Map */
   return {
     showPage,
     switchTab,
@@ -494,7 +445,97 @@ document.addEventListener("DOMContentLoaded", () => {
     showGeneratingShimmer,
     renderCampaignOutput,
     renderOutputError,
-    renderStudioEmpty
+    renderStudioEmpty,
+    syncGlobalAvatar
   };
 
 })();
+
+/* ─── LIFECYCLE DOM LISTENERS ──────────────────────────────── */
+document.addEventListener("DOMContentLoaded", () => {
+  UI.syncGlobalAvatar();
+});
+
+// ==========================================
+// MARKTREND AI — CLIPBOARD COPY MECHANICS
+// ==========================================
+document.addEventListener('click', async (event) => {
+  const copyBtn = event.target.closest('.btn-copy');
+  if (!copyBtn) return;
+
+  const parentBlock = copyBtn.closest('.output-block');
+  const textTarget = parentBlock ? parentBlock.querySelector('.txt-target') : null;
+
+  if (textTarget) {
+    const textToCopy = textTarget.innerText.trim();
+
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+
+      const label = copyBtn.querySelector('span');
+      if (label) {
+        label.textContent = 'Copied!';
+        copyBtn.style.borderColor = 'var(--accent, #3b82f6)';
+        
+        setTimeout(() => {
+          label.textContent = 'Copy';
+          copyBtn.style.borderColor = '';
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  }
+});
+
+// ==========================================
+// MARKTREND AI — CALENDAR ADD MECHANICS
+// ==========================================
+document.addEventListener('click', async (event) => {
+  const calendarBtn = event.target.closest('.btn-to-calendar');
+  if (!calendarBtn) return;
+
+  // 1. Scrape Brand Name from the UI Preview Frame
+  const brandNameEl = document.querySelector('.preview-user-name');
+  const brand = brandNameEl ? brandNameEl.innerText.trim() : 'TrendIdea Client';
+
+  // 2. Scrape Post Time string content cleanly from its block element
+  const timeBlockEl = document.querySelector('.output-best-posting-time');
+  let rawTime = timeBlockEl ? timeBlockEl.innerText.trim() : '10:00 AM';
+  
+  // Format extraction safeguard if supplementary text blocks wrap the timing string
+  const timeMatch = rawTime.match(/((1[0-2]|0?[1-9]):([0-5][0-9])\s?(AM|PM|am|pm))/i);
+  const time = timeMatch ? timeMatch[0].toUpperCase() : rawTime;
+
+  // 3. Define the precise highlighted structural date parameter required
+  const date = '2026-06-13';
+
+  // 4. Update storage structures
+  try {
+    const currentEvents = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+    
+    // Check duplication constraints to keep arrays clean and unique
+    const isDuplicate = currentEvents.some(ev => ev.brand === brand && ev.time === time && ev.date === date);
+    
+    if (!isDuplicate) {
+      currentEvents.push({ brand, time, date });
+      localStorage.setItem('calendarEvents', JSON.stringify(currentEvents));
+    }
+  } catch (e) {
+    console.error('Failed tracking event persistence arrays:', e);
+  }
+
+  // 5. Update component layout button labels 
+  const label = calendarBtn.querySelector('span');
+  if (label) {
+    label.textContent = 'Added!';
+    calendarBtn.style.borderColor = 'var(--accent, #3b82f6)';
+    calendarBtn.style.color = 'var(--accent, #3b82f6)';
+    
+    setTimeout(() => {
+      label.textContent = 'Add to Calendar';
+      calendarBtn.style.borderColor = '';
+      calendarBtn.style.color = '';
+    }, 2000);
+  }
+});
